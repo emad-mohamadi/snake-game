@@ -47,7 +47,7 @@ class Board:
 
         positions = [(fix(pos[0]+1), pos[1]), (fix(pos[0]-1), pos[1]),
                      (pos[0], fix(pos[1]+1)), (pos[0], fix(pos[1]-1))]
-        return [position for position in positions if not (self.is_blocked(position, 0) or visited.is_blocked(position))]
+        return [position for position in positions if not (self.is_blocked(position, distance) or visited.is_blocked(position))]
 
     def find_path(self, start, target):
         path = {}
@@ -103,11 +103,11 @@ class Heap:
 
 
 # board = Board(20)
-# board.set(*[(8, i) for i in range(17)])
-# board.set(*[(16, i) for i in range(5, 20)])
-# board.set(*[(0, i) for i in range(20)])
-# board.set(*[(i, 0) for i in range(20)])
-# board.set(*[(20-1, i) for i in range(20)])
-# board.set(*[(i, 20-1) for i in range(20)])
-# print(board.find_path((1, 1), (18, 18)))
+# board.set(*[(8, i) for i in range(17)], value=1)
+# board.set(*[(16, i) for i in range(5, 20)], value=1)
+# board.set(*[(0, i) for i in range(20)], value=1)
+# board.set(*[(i, 0) for i in range(20)], value=1)
+# board.set(*[(20-1, i) for i in range(20)], value=1)
+# board.set(*[(i, 20-1) for i in range(20)], value=1)
+# board.set(*board.find_path((1, 1), (18, 18)))
 # print(board)
