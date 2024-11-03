@@ -1,9 +1,9 @@
-<<<<<<< HEAD
-from os import get_terminal_size as console_size
-from math import ceil
-from random import choice, randint
-from time import sleep
 from navigate import Board
+from time import sleep
+from random import choice, randint
+from math import ceil
+from os import get_terminal_size as console_size
+<< << << < HEAD
 
 borders = {
     "no-border": [" ", " ", (" ", " ", " ", " ")],
@@ -273,6 +273,3 @@ def message(message, time, format):
         scr.show()
         sleep(0.05)
         time -= 0.05
-=======
-
->>>>>>> e79ddba955dd3b3a470a4be187fc5f933374fe4b
