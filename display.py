@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from os import get_terminal_size as console_size
 from math import ceil
 from random import choice, randint
@@ -272,3 +273,6 @@ def message(message, time, format):
         scr.show()
         sleep(0.05)
         time -= 0.05
+=======
+
+>>>>>>> e79ddba955dd3b3a470a4be187fc5f933374fe4b
