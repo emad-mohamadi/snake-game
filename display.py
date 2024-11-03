@@ -3,7 +3,6 @@ from time import sleep
 from random import choice, randint
 from math import ceil
 from os import get_terminal_size as console_size
-<< << << < HEAD
 
 borders = {
     "no-border": [" ", " ", (" ", " ", " ", " ")],
