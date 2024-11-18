@@ -110,12 +110,10 @@ class Board:
                 priority.append((pos, 0))
 
         priority.sort(key=lambda a: a[1])
-        print(priority)
+        # print(priority)
         if priority:
             return [item[0] for item in priority]
         return None
-
-        return
 
 
 class Heap:
