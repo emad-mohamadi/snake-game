@@ -3,7 +3,7 @@ from display import Screen, Window, welcome, sleep, randint, borders, format
 
 game_size = 15
 bounded = False
-break_time = 0.1
+break_time = 0.05
 
 if bounded:
     game_size += 2
