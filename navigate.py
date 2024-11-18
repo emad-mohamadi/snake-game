@@ -23,7 +23,7 @@ class Board:
             self.mat[position[0]][position[1]] -= 1
         return
 
-    def is_blocked(self, position, distance=0):
+    def is_blocked(self, position, distance=1):
         return False if 0 <= self.mat[position[0]][position[1]] <= distance else True
         # return self.mat[position[0]][position[1]]
 
@@ -33,7 +33,7 @@ class Board:
                 [f"{self.mat[i][j]: 3}" for j in range(self.size)]) for i in range(self.size)]))
 
     # Classic
-    def neighbors(self, pos, visited=None, distance=0):
+    def neighbors(self, pos, visited=None, distance=1):
         if not visited:
             visited = self
 
@@ -56,7 +56,7 @@ class Board:
         distances = {
             start: 0
         }
-        for neighbor in self.neighbors(start, distance=1):
+        for neighbor in self.neighbors(start):
             queue.push((neighbor, 1))
             path[neighbor] = start
         visited.set(start)
@@ -64,27 +64,58 @@ class Board:
             pos, distance = queue.pop()
 
             if pos == target:
+                if self.neighbors(target, distance=distance) == [path[target]]:
+                    return self.alternative_path(start)
                 break
             if visited.is_blocked(pos):
                 continue
             visited.set(pos)
             distances[pos] = distance
             for neighbor in self.neighbors(pos, visited, distance):
-                queue.push((neighbor, distance + 1))
+                queue.push((neighbor, distance+1))
                 path[neighbor] = pos
 
         try:
-            try:
-                step = target
-                steps = [step]
-                while path[step] != start:
-                    step = path[step]
-                    steps.append(step)
-                return steps
-            except KeyError:
-                return [choice(self.neighbors(start, Board(self.size), distance=1))]
-        except:
-            return None
+            step = target
+            steps = [step]
+            while path[step] != start:
+                step = path[step]
+                steps.append(step)
+            return steps
+        except KeyError:
+            return self.alternative_path(start)
+
+    def alternative_path(self, start):
+        possible_moves = self.neighbors(start, distance=0)
+        priority = []
+
+        for pos in possible_moves:
+            direction = (pos[0]-start[0], pos[1]-start[1])
+
+            forward = (direction[0]+pos[0], direction[1]+pos[1])
+            turn1 = (direction[0]+pos[1], direction[1]+pos[0])
+            turn2 = (direction[0]-pos[1], direction[1]-pos[0])
+
+            if self.is_blocked(turn1) and self.is_blocked(turn2):
+                if not self.is_blocked(forward):
+                    priority.append((pos, -1))
+            elif self.is_blocked(turn1) or self.is_blocked(turn2):
+                if self.is_blocked(forward):
+                    priority.append((pos, 3))
+                else:
+                    priority.append((pos, 2))
+            elif self.is_blocked(forward):
+                priority.append((pos, 1))
+            else:
+                priority.append((pos, 0))
+
+        priority.sort(key=lambda a: a[1])
+        print(priority)
+        if priority:
+            return [item[0] for item in priority]
+        return None
+
+        return
 
 
 class Heap:

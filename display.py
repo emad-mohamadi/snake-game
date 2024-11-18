@@ -182,7 +182,7 @@ class Window:
         elif code == 0:
             return format["dim"] + "░"
         elif code == -1:
-            return format["fore"]["blue"] + "█"
+            return format["fore"]["yellow"] + "█"
         elif code == -2:
             return format["fore"]["red"] + "█"
             # return format["fore"][choice(colors["apple"])] + "█"

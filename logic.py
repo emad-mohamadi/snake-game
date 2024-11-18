@@ -2,8 +2,8 @@
 from display import Screen, Window, welcome, sleep, randint, borders, format
 
 game_size = 15
-bounded = False
-break_time = 0.1
+bounded = True
+break_time = 0.05
 
 if bounded:
     game_size += 2
@@ -18,9 +18,13 @@ if bounded:
 else:
     new_win.set_border(*borders["rounded"])
 
-snake_body = [new_win.board.drop_apple()]
-new_win.board.set(*snake_body, value=1)
+new_win.board.set(*[(i, game_size-3) for i in range(game_size)])
+
+snake_body = [(game_size//2, game_size//2), (game_size//2, game_size//2+1)]
+# snake_body = [new_win.board.drop_apple()]
+# new_win.board.set(*snake_body, value=1)
 new_win.apple = new_win.board.drop_apple()
+new_win.apple = (1, game_size-2)
 scr = Screen()
 
 while True:
