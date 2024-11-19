@@ -24,6 +24,7 @@ new_win.apple = new_win.board.drop_apple()
 scr = Screen()
 
 while True:
+    new_win.set_pos(("m", "m"))
     new_win.set_header(title=str(len(snake_body)))
     scr.add_window(new_win)
     scr.show()
