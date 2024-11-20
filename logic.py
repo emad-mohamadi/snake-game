@@ -20,6 +20,14 @@ class Game:
             self.direction = (0, -1) if self.direction != (0, 1) else (0, 1)
         return
 
+    def game_over(self):
+        scr = Screen()
+        scr.add_window(self.window)
+        scr.show()
+        scr.clear()
+        print("GAME-OVER")
+        return
+
     def run(self, autopilot=False, show_path=False):
         self.direction = (0, 1)
         if not autopilot:
@@ -30,6 +38,7 @@ class Game:
         if self.wall:
             self.size += 2
         win = Window((self.size*2, self.size))
+        self.window = win
         win.show_path = show_path
         win.set_board(self.size)
         if self.wall:
@@ -64,15 +73,15 @@ class Game:
 
             steps = win.board.find_path(snake_body[-1], win.apple)
             if not steps:
-                scr.add_window(win)
-                scr.show()
-                scr.clear()
-                print("GAME-OVER")
+                self.game_over()
                 break
             win.path = steps
             if not autopilot:
                 next_step = (win.board.fix(
                     snake_body[-1][0]+self.direction[0]), win.board.fix(snake_body[-1][1]+self.direction[1]))
+                if win.board.is_blocked(next_step, distance=1):
+                    self.game_over()
+                    break
             else:
                 next_step = steps.pop()
 
@@ -91,5 +100,5 @@ class Game:
             win.board.set(next_step, value=len(snake_body))
 
 
-snake = Game(step_time=0.2)
-snake.run(autopilot=False, show_path=True)
+snake = Game(step_time=0.1)
+snake.run(autopilot=True, show_path=True)
