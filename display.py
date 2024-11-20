@@ -4,6 +4,17 @@ from random import choice, randint
 from math import ceil
 from os import get_terminal_size as console_size
 
+toggle = ["n", "Y"]
+
+intensity = {
+    16: "+",
+    24: "++",
+    32: "+++",
+    5: "+++",
+    15: "++",
+    25: "+"
+}
+
 borders = {
     "no-border": [" ", " ", (" ", " ", " ", " ")],
     "blocks": ["█", "█", ("█", "█", "█", "█")],
@@ -179,7 +190,7 @@ class Window:
     def show_board(self, code):
         if code >= 1:
             # return f"\033[38;5;{232+code//3}m█"
-            return format["fore"]["blue"] + str(code % 10)
+            return format["fore"]["blue"] + "█"
         elif code == 0:
             return format["dim"] + "░"
         elif code == -1:
