@@ -92,7 +92,7 @@ class Board:
 
         for pos in possible_moves:
             direction = (pos[0]-start[0], pos[1]-start[1])
-
+        
             # forward = (pos[0]+direction[0], pos[1]+direction[1])
             # turn1 = (pos[0]+direction[1], pos[1]+direction[0])
             # turn2 = (pos[0]-direction[1], pos[1]-direction[0])
@@ -123,6 +123,7 @@ class Board:
 
         # print([item[1] for item in priority])
         priority.sort(key=lambda a: a[1])
+    
         if priority:
             return [item[0] for item in priority]
         return None
