@@ -31,10 +31,10 @@ class Game:
     def run(self, autopilot=False, show_path=False):
         self.direction = (0, 1)
         if not autopilot:
-            add_hotkey("up", self.set_direction, args=["up"])
-            add_hotkey("down", self.set_direction, args=["down"])
-            add_hotkey("right", self.set_direction, args=["right"])
-            add_hotkey("left", self.set_direction, args=["left"])
+            add_hotkey("up", self.set_direction, args=["up"], suppress=True)
+            add_hotkey("down", self.set_direction, args=["down"], suppress=True)
+            add_hotkey("right", self.set_direction, args=["right"], suppress=True)
+            add_hotkey("left", self.set_direction, args=["left"], suppress=True)
         if self.wall:
             self.size += 2
         win = Window((self.size*2, self.size))
@@ -101,4 +101,4 @@ class Game:
 
 
 snake = Game(step_time=0.1)
-snake.run(autopilot=True, show_path=True)
+snake.run(autopilot=False, show_path=True)
