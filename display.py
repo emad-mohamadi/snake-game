@@ -123,7 +123,7 @@ class Screen:
             if window.board:
                 for i in range(window.board.size):
                     for j in range(window.board.size):
-                        if window.path and (i, j) in window.path:
+                        if window.show_path and (i, j) in window.path:
                             self.matrix[window.pos[1]+i][window.pos[0] +
                                                          j*2] = window.show_board(0) + self.default
                             self.matrix[window.pos[1]+i][window.pos[0] +
@@ -156,6 +156,7 @@ class Screen:
 
 class Window:
     paused = False
+    show_path = False
     main = True
     board = None
     apple = None
@@ -178,7 +179,7 @@ class Window:
     def show_board(self, code):
         if code >= 1:
             # return f"\033[38;5;{232+code//3}m█"
-            return format["fore"]["blue"] + "█"
+            return format["fore"]["blue"] + str(code % 10)
         elif code == 0:
             return format["dim"] + "░"
         elif code == -1:
