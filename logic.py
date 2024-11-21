@@ -1,9 +1,18 @@
 from keyboard import add_hotkey, remove_all_hotkeys
 from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity
+from json import load, dump
 
 
 class Game:
     pressed_key = None
+    score = 0
+    data_path = "data.json"
+    username = None
+    record_broken = False
+    data = {
+        "high-score": 0,
+        "max-length": 3,
+    }
 
     def __init__(self, size=16, wall=False, autopilot=False, show_path=True, step_time=15):
         self.size = size
@@ -16,30 +25,89 @@ class Game:
     def switch(self, code):
         match code:
             case 1:
-                return self.menu()
+                return self.main_menu()
             case 2:
-                return self.run()
+                return self.start()
+            case 3:
+                return self.login_menu()
+            case 4:
+                return self.signin_menu()
+            case 5:
+                return self.pause_menu()
+
         return 0
 
-    def menu(self):
+    def signin_menu(self):
+        ...
+
+    def login_menu(self):
+        screen = Screen()
+        win = Window(size=[18, 6])
+        win.set_header(title="Login")
+        win.set_border()
+
+        add_hotkey("enter", self.press_key, args=["enter"], suppress=True)
+        add_hotkey("backspace", self.press_key,
+                   args=["backspace"], suppress=True)
+        add_hotkey("shift+s", self.press_key, args=["S"], suppress=True)
+        add_hotkey("esc", self.press_key, args=["Q"], suppress=True)
+        for i in range(97, 123):
+            add_hotkey(chr(i), self.press_key, args=[chr(i)], suppress=True)
+
+        typed = ""
+        while True:
+            win.text = []
+            win.add_text(text="username:", pos=["m", 2])
+            win.add_text(text=typed+"_", pos=["m", 3])
+            win.add_text(text="Sign up", pos=["l", 5])
+            win.add_text(text="Quit", pos=["l", 6])
+            win.add_text(text="S", pos=["r", 5], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 6], format=format["underlined"])
+            screen.add_window(win)
+            screen.show()
+            match self.pressed_key:
+                case "enter":
+                    self.pressed_key = None
+                    self.load_data(self.data_path)
+                    if typed in self.data:
+                        self.username = typed
+                        message([f"welcome {typed}"], 1.5,
+                                form=format["fore"]["green"])
+                        code = 1
+                    else:
+                        message(
+                            [f"username '{typed}' not found"], 2.5, form=format["fore"]["red"])
+                        code = 3
+                    break
+                case "S":
+                    self.pressed_key = None
+                    code = 4
+                    break
+                case "Q":
+                    self.pressed_key = None
+                    code = 0
+                    break
+                case "backspace":
+                    self.pressed_key = None
+                    typed = typed[:-1]
+                case _:
+                    if self.pressed_key and len(typed) < 10:
+                        typed += self.pressed_key
+                        self.pressed_key = None
+
+            sleep(self.step_time/100)
+            screen.clear()
+            win.set_pos(("m", "m"))
+            win.set_header(title="Login")
+        remove_all_hotkeys()
+        return code
+
+    def main_menu(self):
         screen = Screen()
         win = Window(size=[25, 8])
         win.set_header(title="Menu")
         win.set_border(*borders["rounded"])
 
-        # file = open(self.data_path, "r")
-        # data = json.loads(file.read())
-        # file.close()
-        # saved = not not data[self.username][self.mode]["saved"]
-        # del data
-
-        # if saved:
-        #     add_hotkey("shift+l", self.press_key, args=["l"])
-        #     f1 = format["fore"]["yellow"]
-        #     f2 = format["underlined"]
-        # else:
-        #     f1 = format["dim"]
-        # #     f2 = format["dim"]
         add_hotkey("w", self.press_key, args=["w"], suppress=True)
         add_hotkey("l", self.press_key, args=["l"], suppress=True)
         add_hotkey("s", self.press_key, args=["s"], suppress=True)
@@ -97,80 +165,6 @@ class Game:
         remove_all_hotkeys()
         return code
 
-    # def menu(self):
-    #     screen = Screen()
-    #     win = Window(size=[18, 7])
-    #     win.set_header(title="Menu")
-    #     win.set_border(*borders["rounded"])
-
-    #     # file = open(self.data_path, "r")
-    #     # data = json.loads(file.read())
-    #     # file.close()
-    #     # saved = not not data[self.username][self.mode]["saved"]
-    #     # del data
-
-    #     # if saved:
-    #     #     add_hotkey("shift+l", self.press_key, args=["l"])
-    #     #     f1 = format["fore"]["yellow"]
-    #     #     f2 = format["underlined"]
-    #     # else:
-    #     #     f1 = format["dim"]
-    #     #     f2 = format["dim"]
-    #     add_hotkey("shift+n", self.press_key, args=["n"], suppress=True)
-    #     # add_hotkey("shift+c", self.press_key, args=["c"], suppress=True)
-    #     add_hotkey("shift+o", self.press_key, args=["o"], suppress=True)
-    #     add_hotkey("shift+q", self.press_key, args=["q"], suppress=True)
-    #     while True:
-    #         win.text = []
-    #         # if saved:
-    #         win.add_text(text="Load Game", pos=["l", 3])
-    #         win.add_text(text="L", pos=["r", 3])
-    #         win.add_text(text="New Game", pos=["l", 2])
-    #         # win.add_text(text="Change Mode", pos=["l", 5])
-    #         # win.add_text(text=f"({self.mode})", pos=["m", 6])
-    #         win.add_text(text="Logout", pos=["l", 6])
-    #         win.add_text(text="Quit", pos=["l", 7])
-    #         win.add_text(text="N", pos=["r", 2], format=format["underlined"])
-    #         # win.add_text(text="C", pos=["r", 5], format=format["underlined"])
-    #         win.add_text(text="O", pos=["r", 6], format=format["underlined"])
-    #         win.add_text(text="Q", pos=["r", 7], format=format["underlined"])
-    #         screen.add_window(win)
-    #         screen.show()
-    #         match self.pressed_key:
-    #             case "l":
-    #                 self.pressed_key = None
-    #                 code = 0
-    #                 break
-    #             case "n":
-    #                 self.pressed_key = None
-    #                 code = 2
-    #                 break
-    #             # case "c":
-    #             #     self.pressed_key = None
-    #             #     self.mode = "beta" if self.mode == "classic" else "classic"
-    #             #     file = open(self.data_path, "r")
-    #             #     data = json.loads(file.read())
-    #             #     self.high_score = data[self.username][self.mode]["high-score"]
-    #             #     self.max_lines = data[self.username][self.mode]["max-lines"]
-    #             #     self.best_level = data[self.username][self.mode]["best-level"]
-    #             #     code = 1
-    #             #     break
-    #             case "o":
-    #                 self.pressed_key = None
-    #                 code = 5
-    #                 self.username = None
-    #                 break
-    #             case "q":
-    #                 self.pressed_key = None
-    #                 code = 0
-    #                 break
-    #         sleep(self.step_time)
-    #         screen.clear()
-    #         win.set_pos(("m", "m"))
-    #         win.set_header(title="Menu")
-    #     remove_all_hotkeys()
-    #     return code
-
     def press_key(self, key):
         self.pressed_key = key
         return
@@ -186,29 +180,100 @@ class Game:
             self.direction = (0, -1) if self.direction != (0, 1) else (0, 1)
         return
 
-    def game_over(self):
-        scr = Screen()
-        scr.add_window(self.window)
-        scr.show()
-        scr.clear()
-        print("GAME-OVER")
+    def load_data(self, data_path):
+        with open(data_path, "r") as file:
+            self.data = load(file)
         return
 
-    def run(self):
+    def save_data(self, data_path):
+        with open(data_path, "w") as file:
+            dump(self.data, file, indent=4)
+        return
 
-        if not self.autopilot:
-            add_hotkey("up", self.set_direction, args=["up"], suppress=True)
-            add_hotkey("down", self.set_direction,
-                       args=["down"], suppress=True)
-            add_hotkey("right", self.set_direction,
-                       args=["right"], suppress=True)
-            add_hotkey("left", self.set_direction,
-                       args=["left"], suppress=True)
+    def game_over(self):
+        phrase = "Your score:"
+        if self.record_broken:
+            self.record_broken = False
+            phrase = "New high score:"
+        message_text = ["", phrase, str(self.score)]
+        message(message_text, header=" Game Over ", time=3.0)
+        self.save_data(self.data_path)
+        return
+
+    def pause_menu(self):
+        screen = Screen()
+        win = Window(size=[18, 9])
+        win.set_header(title="Paused")
+        win.set_border()
+
+        add_hotkey("r", self.press_key, args=["r"], suppress=True)
+        add_hotkey("n", self.press_key, args=["n"], suppress=True)
+        add_hotkey("q", self.press_key, args=["q"], suppress=True)
+        add_hotkey("m", self.press_key, args=["m"], suppress=True)
+        add_hotkey("a", self.press_key, args=["a"], suppress=True)
+        add_hotkey("p", self.press_key, args=["p"], suppress=True)
+        # self.save_game()
+
+        while True:
+            win.text = []
+            win.add_text(text="Resume", pos=["l", 2])
+            win.add_text(text="New Game", pos=["l", 3])
+            win.add_text(text="Back to Menu", pos=["l", 5])
+            win.add_text(text="Quit", pos=["l", 6])
+            win.add_text(text=f"AutoPilot {
+                         toggle[self.autopilot]}", pos=["l", 7])
+            win.add_text(text=f"ShowPath {
+                         toggle[self.show_path]}", pos=["l", 8])
+
+            win.add_text(text="r", pos=["r", 2], format=format["underlined"])
+            win.add_text(text="n", pos=["r", 3], format=format["underlined"])
+            win.add_text(text="m", pos=["r", 5], format=format["underlined"])
+            win.add_text(text="q", pos=["r", 6], format=format["underlined"])
+            win.add_text(text="a", pos=["r", 7], format=format["underlined"])
+            win.add_text(text="p", pos=["r", 8], format=format["underlined"])
+
+            screen.add_window(win)
+            screen.show()
+            match self.pressed_key:
+                case "r":
+                    self.pressed_key = None
+                    code = 2
+                    break
+                case "n":
+                    self.pressed_key = None
+                    code = 2
+                    # Here we should set up a new game
+                    # by initializing some parameters in 'self.run'
+                    # again.
+                    break
+                case "m":
+                    self.pressed_key = None
+                    code = 1
+                    break
+                case "q":
+                    self.pressed_key = None
+                    code = 0
+                    break
+                case "a":
+                    self.autopilot = not self.autopilot
+                    self.pressed_key = None
+                case "p":
+                    self.show_path = not self.show_path
+                    self.pressed_key = None
+            sleep(self.step_time/100)
+            screen.clear()
+            win.set_pos(("m", "m"))
+            win.set_header(title="Paused")
+        remove_all_hotkeys()
+        return code
+
+    def start(self):
+        self.score = 0
+        self.direction = (0, 1)
         game_size = self.size
         if self.wall:
             game_size += 2
         win = Window((game_size*2, game_size))
-        self.window = win
         win.show_path = self.show_path
         win.set_board(game_size)
         if self.wall:
@@ -220,67 +285,118 @@ class Game:
         else:
             win.set_border(*borders["rounded"])
 
+        self.snake_body = [(1, 1), (1, 2), (1, 3)]
+        win.board.set(self.snake_body[0], value=1)
+        win.board.set(self.snake_body[1], value=2)
+        win.board.set(self.snake_body[2], value=3)
+
+        win.apple = win.board.drop_apple()
+
+        self.window = win
+        return self.run()
+
+    def run(self):
+        self.load_data(self.data_path)
+
+        add_hotkey("esc", self.press_key, args=["esc"], suppress=True)
+        if not self.autopilot:
+            add_hotkey("up", self.set_direction, args=["up"], suppress=True)
+            add_hotkey("down", self.set_direction,
+                       args=["down"], suppress=True)
+            add_hotkey("right", self.set_direction,
+                       args=["right"], suppress=True)
+            add_hotkey("left", self.set_direction,
+                       args=["left"], suppress=True)
+        # game_size = self.size
+        # if self.wall:
+        #     game_size += 2
+        # win = Window((game_size*2, game_size))
+        # self.window = win
+        # win.show_path = self.show_path
+        # win.set_board(game_size)
+        # if self.wall:
+        #     win.board.set(*[(0, i) for i in range(game_size)])
+        #     win.board.set(*[(i, 0) for i in range(game_size)])
+        #     win.board.set(*[(game_size-1, i) for i in range(game_size)])
+        #     win.board.set(*[(i, game_size-1) for i in range(game_size)])
+        #     win.set_border(*borders["no-border"])
+        # else:
+        #     win.set_border(*borders["rounded"])
+
         # test
         # win.board.set(*[(i, game_size-3) for i in range(2)])
 
-        # snake_body = [win.board.drop_apple()]
+        # self.snake_body = [win.board.drop_apple()]
         # test
-        snake_body = [(1, game_size//2-1), (1, game_size//2),
-                      (1, game_size//2+1)]
-        win.board.set(snake_body[0], value=1)
-        win.board.set(snake_body[1], value=2)
-        win.board.set(snake_body[2], value=3)
+        # self.snake_body = [(1, game_size//2-1), (1, game_size//2),
+        #               (1, game_size//2+1)]
+        # win.board.set(self.snake_body[0], value=1)
+        # win.board.set(self.snake_body[1], value=2)
+        # win.board.set(self.snake_body[2], value=3)
 
         # test
         # win.apple = (1, game_size-2)
-        win.apple = win.board.drop_apple()
-        scr = Screen()
+        # win.apple = win.board.drop_apple()
         # print(win.board)
-        self.direction = (0, 1)
-
+        # self.direction = (0, 1)
+        win = self.window
+        scr = Screen()
         while True:
-
             scr.clear()
-            win.set_header(title=str(len(snake_body)-3))
+            win.set_header(title=str(self.score)+" " +
+                           str(self.data[self.username][str(self.wall)]["hs"]))
             win.set_pos(("m", "m"))
+            if self.pressed_key == "esc":
+                self.save_data(self.data_path)
+                self.pressed_key = None
+                return 5
 
             if self.autopilot:
                 sleep(self.step_time/100)
-                steps = win.board.find_path(snake_body[-1], win.apple)
-                if not steps:
-                    self.game_over()
-                    break
-                win.path = steps
-                next_step = steps[-1]
+                if not win.paused:
+                    steps = win.board.find_path(self.snake_body[-1], win.apple)
+                    if not steps:
+                        self.game_over()
+                        break
+                    win.path = steps
+                    next_step = steps[-1]
                 scr.add_window(win)
                 scr.show()
             else:
-                win.path = win.board.find_path(snake_body[-1], win.apple)
+                win.path = win.board.find_path(self.snake_body[-1], win.apple)
                 scr.add_window(win)
                 scr.show()
                 sleep(self.step_time/100)
-                next_step = (win.board.fix(
-                    snake_body[-1][0]+self.direction[0]), win.board.fix(snake_body[-1][1]+self.direction[1]))
-                if win.board.is_blocked(next_step, distance=1):
-                    self.game_over()
-                    break
+                if not win.paused:
+                    next_step = (win.board.fix(
+                        self.snake_body[-1][0]+self.direction[0]), win.board.fix(self.snake_body[-1][1]+self.direction[1]))
+                    if win.board.is_blocked(next_step):
+                        self.game_over()
+                        break
 
-            if next_step == win.apple:
-                win.apple = win.board.drop_apple()
-            else:
-                # win.board.set(snake_body.pop(0), value=0)
-                win.board.minus(*snake_body)
-                snake_body.pop(0)
-            snake_body.append(next_step)
-            win.board.set(next_step, value=len(snake_body))
-
+            if not win.paused:
+                if next_step == win.apple:
+                    self.score += 1
+                    if self.data[self.username][str(self.wall)]["hs"] < self.score:
+                        self.data[self.username][str(
+                            self.wall)]["hs"] = self.score
+                        self.record_broken = True
+                    win.apple = win.board.drop_apple()
+                else:
+                    # win.board.set(self.snake_body.pop(0), value=0)
+                    win.board.minus(*self.snake_body)
+                    self.snake_body.pop(0)
+                self.snake_body.append(next_step)
+                win.board.set(next_step, value=len(self.snake_body))
+                self.data[self.username][str(self.wall)]["ml"] = max(len(self.snake_body),
+                                                                     self.data[self.username][str(self.wall)]["ml"])
             # if not steps:
             #     self.game_over()
             #     break
             # win.path = steps
             # if not self.autopilot:
             #     next_step = (win.board.fix(
-            #         snake_body[-1][0]+self.direction[0]), win.board.fix(snake_body[-1][1]+self.direction[1]))
+            #         self.snake_body[-1][0]+self.direction[0]), win.board.fix(self.snake_body[-1][1]+self.direction[1]))
             #     if win.board.is_blocked(next_step, distance=1):
             #         self.game_over()
             #         break
