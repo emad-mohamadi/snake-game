@@ -272,7 +272,7 @@ def message(message, time, header=None, form=format["regular"], border=borders["
     scr = Screen()
     popup = Window(size=[25, 5])
     if header:
-        popup.set_header(title=header)
+        popup.set_header(title=header, format=form)
     popup.set_border(*border)
 
     while time > 0:

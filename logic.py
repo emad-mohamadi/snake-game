@@ -191,12 +191,20 @@ class Game:
         return
 
     def game_over(self):
+        self.window.set_border(format=format["fore"]["red"]+format["bold"])
+        scr = Screen()
+        scr.add_window(self.window)
+        scr.show()
+        scr.clear()
+        sleep(2)
+
         phrase = "Your score:"
         if self.record_broken:
             self.record_broken = False
             phrase = "New high score:"
-        message_text = ["", phrase, str(self.score)]
-        message(message_text, header=" Game Over ", time=3.0)
+        message_text = ["", phrase, "", str(self.score)]
+        message(message_text, header=" Game Over ",
+                time=3.0, form=format["fore"]["red"], border=borders["rounded"])
         self.save_data(self.data_path)
         return
 
