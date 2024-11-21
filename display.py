@@ -4,6 +4,17 @@ from random import choice, randint
 from math import ceil
 from os import get_terminal_size as console_size
 
+toggle = ["n", "Y"]
+
+intensity = {
+    16: "+",
+    24: "++",
+    32: "+++",
+    5: "+++",
+    15: "++",
+    25: "+"
+}
+
 borders = {
     "no-border": [" ", " ", (" ", " ", " ", " ")],
     "blocks": ["█", "█", ("█", "█", "█", "█")],
@@ -123,16 +134,16 @@ class Screen:
             if window.board:
                 for i in range(window.board.size):
                     for j in range(window.board.size):
-                        if window.show_path and (i, j) in window.path:
-                            self.matrix[window.pos[1]+i][window.pos[0] +
-                                                         j*2] = window.show_board(0) + self.default
-                            self.matrix[window.pos[1]+i][window.pos[0] +
-                                                         j*2+1] = window.show_board(0) + self.default
-                        elif window.board.mat[i][j]:
+                        if window.board.mat[i][j]:
                             self.matrix[window.pos[1]+i][window.pos[0] +
                                                          j*2] = window.show_board(window.board.mat[i][j]) + self.default
                             self.matrix[window.pos[1]+i][window.pos[0] +
                                                          j*2+1] = window.show_board(window.board.mat[i][j]) + self.default
+                        elif window.show_path and (i, j) in window.path:
+                            self.matrix[window.pos[1]+i][window.pos[0] +
+                                                         j*2] = window.show_board(0) + self.default
+                            self.matrix[window.pos[1]+i][window.pos[0] +
+                                                         j*2+1] = window.show_board(0) + self.default
 
             # Apple
             if window.apple:
@@ -179,7 +190,7 @@ class Window:
     def show_board(self, code):
         if code >= 1:
             # return f"\033[38;5;{232+code//3}m█"
-            return format["fore"]["blue"] + str(code % 10)
+            return format["fore"]["blue"] + "█"
         elif code == 0:
             return format["dim"] + "░"
         elif code == -1:
