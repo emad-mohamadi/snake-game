@@ -195,7 +195,7 @@ class Game:
         return
 
     def run(self):
-        self.direction = (0, 1)
+
         if not self.autopilot:
             add_hotkey("up", self.set_direction, args=["up"], suppress=True)
             add_hotkey("down", self.set_direction,
@@ -236,29 +236,34 @@ class Game:
         win.apple = win.board.drop_apple()
         scr = Screen()
         # print(win.board)
+        self.direction = (0, 1)
+
         while True:
+
+            scr.clear()
             win.set_header(title=str(len(snake_body)-3))
             win.set_pos(("m", "m"))
-            sleep(self.step_time/100)
 
-            steps = win.board.find_path(snake_body[-1], win.apple)
-            if not steps:
-                self.game_over()
-                break
-            win.path = steps
-            if not self.autopilot:
+            if self.autopilot:
+                sleep(self.step_time/100)
+                steps = win.board.find_path(snake_body[-1], win.apple)
+                if not steps:
+                    self.game_over()
+                    break
+                win.path = steps
+                next_step = steps[-1]
+                scr.add_window(win)
+                scr.show()
+            else:
+                win.path = win.board.find_path(snake_body[-1], win.apple)
+                scr.add_window(win)
+                scr.show()
+                sleep(self.step_time/100)
                 next_step = (win.board.fix(
                     snake_body[-1][0]+self.direction[0]), win.board.fix(snake_body[-1][1]+self.direction[1]))
                 if win.board.is_blocked(next_step, distance=1):
                     self.game_over()
                     break
-            else:
-                next_step = steps.pop()
-
-            scr.add_window(win)
-            scr.show()
-            # print(self.direction)
-            scr.clear()
 
             if next_step == win.apple:
                 win.apple = win.board.drop_apple()
@@ -268,6 +273,23 @@ class Game:
                 snake_body.pop(0)
             snake_body.append(next_step)
             win.board.set(next_step, value=len(snake_body))
+
+            # if not steps:
+            #     self.game_over()
+            #     break
+            # win.path = steps
+            # if not self.autopilot:
+            #     next_step = (win.board.fix(
+            #         snake_body[-1][0]+self.direction[0]), win.board.fix(snake_body[-1][1]+self.direction[1]))
+            #     if win.board.is_blocked(next_step, distance=1):
+            #         self.game_over()
+            #         break
+            # else:
+            #     next_step = steps.pop()
+
+            # scr.add_window(win)
+            # print(self.direction)
+
         return 1
 
 
