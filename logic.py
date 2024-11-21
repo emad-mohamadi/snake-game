@@ -38,7 +38,75 @@ class Game:
         return 0
 
     def signin_menu(self):
-        ...
+        screen = Screen()
+        win = Window(size=[18, 6])
+        win.set_header(title="Sign-up")
+        win.set_border()
+
+        add_hotkey("enter", self.press_key, args=["enter"], suppress=True)
+        add_hotkey("backspace", self.press_key, args=["backspace"], suppress=True)
+        add_hotkey("shift+l", self.press_key, args=["L"], suppress=True)
+        add_hotkey("esc", self.press_key, args=["Q"], suppress=True)
+        for i in range(97, 123):
+            add_hotkey(chr(i), self.press_key, args=[chr(i)], suppress=True)
+
+        typed = ""
+        while True:
+            win.text = []
+            win.add_text(text="username:", pos=["m", 2])
+            win.add_text(text=typed+"_", pos=["m", 3])
+            win.add_text(text="Login", pos=["l", 5])
+            win.add_text(text="Quit", pos=["l", 6])
+            win.add_text(text="L", pos=["r", 5], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 6], format=format["underlined"])
+            screen.add_window(win)
+            screen.show()
+            match self.pressed_key:
+                case "enter":
+                    self.pressed_key = None
+                    self.load_data(self.data_path)
+                    if typed not in self.data:
+                        if len(typed) > 3:
+                            self.username = typed
+                            self.data[self.username] = {
+                                "True": {"hs": 0, "ml": 3},
+                                "False": {"hs": 0, "ml": 3}
+                            }
+                            self.save_data(self.data_path)
+                            message([f"welcome {typed}"], 1.5,
+                                form=format["fore"]["green"])
+                            code = 1
+                        else:
+                            message(
+                                [f"username is too short"], 2.5, form=format["fore"]["red"])
+                            code = 4
+                    else:
+                        message(
+                            [f"username '{typed}' already exists"], 2.5, form=format["fore"]["red"])
+                        code = 4
+                    break
+                case "L":
+                    self.pressed_key = None
+                    code = 3
+                    break
+                case "Q":
+                    self.pressed_key = None
+                    code = 0
+                    break
+                case "backspace":
+                    self.pressed_key = None
+                    typed = typed[:-1]
+                case _:
+                    if self.pressed_key and len(typed) < 10:
+                        typed += self.pressed_key
+                        self.pressed_key = None
+
+            sleep(self.step_time/100)
+            screen.clear()
+            win.set_pos(("m", "m"))
+            win.set_header(title="Sign-up")
+        remove_all_hotkeys()
+        return code
 
     def login_menu(self):
         screen = Screen()
@@ -104,7 +172,7 @@ class Game:
 
     def main_menu(self):
         screen = Screen()
-        win = Window(size=[25, 8])
+        win = Window(size=[25, 10])
         win.set_header(title="Menu")
         win.set_border(*borders["rounded"])
 
@@ -115,22 +183,34 @@ class Game:
         add_hotkey("p", self.press_key, args=["p"], suppress=True)
         add_hotkey("enter", self.press_key, args=["enter"], suppress=True)
         add_hotkey("esc", self.press_key, args=["esc"], suppress=True)
+        add_hotkey("backspace", self.press_key, args=["bs"], suppress=True)
         while True:
             win.text = []
             # if saved:
-            win.add_text(text="(w) Wall", pos=["l", 2])
-            win.add_text(text="(l) Size", pos=["l", 3])
-            win.add_text(text="(s) Speed", pos=["l", 4])
-            win.add_text(text="(a) AutoPilot", pos=["l", 5])
-            win.add_text(text="(p) ShowPath", pos=["l", 6])
+            win.add_text(text="Wall", pos=["l", 2])
+            win.add_text(text="Size", pos=["l", 3])
+            win.add_text(text="Speed", pos=["l", 4])
+            win.add_text(text="AutoPilot", pos=["l", 5])
+            win.add_text(text="ShowPath", pos=["l", 6])
             win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 7])
-            win.add_text(text="Press enter to start.", pos=["l", 8])
+            win.add_text(text="Start", pos=["l", 8])
+            win.add_text(text="Logout", pos=["l", 9])
+            win.add_text(text="Exit", pos=["l", 10])
 
-            win.add_text(text=toggle[self.wall], pos=["r", 2])
-            win.add_text(text=intensity[self.size], pos=["r", 3])
-            win.add_text(text=intensity[self.step_time], pos=["r", 4])
-            win.add_text(text=toggle[self.autopilot], pos=["r", 5])
-            win.add_text(text=toggle[self.show_path], pos=["r", 6])
+            win.add_text(text=toggle[self.wall], pos=["nr", 2], format=format["bold"]+format["fore"]["green"] if self.wall else format["bold"]+format["fore"]["red"])
+            win.add_text(text=intensity[self.size], pos=["nr", 3], format=format["bold"]+format["fore"]["blue"])
+            win.add_text(text=intensity[self.step_time], pos=["nr", 4], format=format["bold"]+format["fore"]["blue"])
+            win.add_text(text=toggle[self.autopilot], pos=["nr", 5], format=format["bold"]+format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.show_path], pos=["nr", 6], format=format["bold"]+format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
+
+            win.add_text(text="w", pos=["r", 2], format=format["underlined"])
+            win.add_text(text="l", pos=["r", 3], format=format["underlined"])
+            win.add_text(text="s", pos=["r", 4], format=format["underlined"])
+            win.add_text(text="a", pos=["r", 5], format=format["underlined"])
+            win.add_text(text="p", pos=["r", 6], format=format["underlined"])
+            win.add_text(text="ENTER", pos=["r", 8], format=format["underlined"])
+            win.add_text(text="backspace", pos=["r", 9], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 10], format=format["underlined"])
 
             screen.add_window(win)
             screen.show()
@@ -153,6 +233,10 @@ class Game:
                 case "enter":
                     self.pressed_key = None
                     code = 2
+                    break
+                case "bs":
+                    self.pressed_key = None
+                    code = 3
                     break
                 case "esc":
                     self.pressed_key = None
@@ -210,35 +294,38 @@ class Game:
 
     def pause_menu(self):
         screen = Screen()
-        win = Window(size=[18, 9])
-        win.set_header(title="Paused")
+        win = Window(size=[28, 8])
+        win.set_header(title=" Paused ")
         win.set_border()
 
-        add_hotkey("r", self.press_key, args=["r"], suppress=True)
+        add_hotkey("enter", self.press_key, args=["r"], suppress=True)
         add_hotkey("n", self.press_key, args=["n"], suppress=True)
-        add_hotkey("q", self.press_key, args=["q"], suppress=True)
-        add_hotkey("m", self.press_key, args=["m"], suppress=True)
+        add_hotkey("esc", self.press_key, args=["q"], suppress=True)
+        add_hotkey("backspace", self.press_key, args=["m"], suppress=True)
         add_hotkey("a", self.press_key, args=["a"], suppress=True)
         add_hotkey("p", self.press_key, args=["p"], suppress=True)
         # self.save_game()
 
         while True:
             win.text = []
-            win.add_text(text="Resume", pos=["l", 2])
-            win.add_text(text="New Game", pos=["l", 3])
-            win.add_text(text="Back to Menu", pos=["l", 5])
-            win.add_text(text="Quit", pos=["l", 6])
-            win.add_text(text=f"AutoPilot {
-                         toggle[self.autopilot]}", pos=["l", 7])
-            win.add_text(text=f"ShowPath {
-                         toggle[self.show_path]}", pos=["l", 8])
+            win.add_text(text="Resume", pos=["l", 5])
+            win.add_text(text="New Game", pos=["l", 6])
+            win.add_text(text="Back to Menu", pos=["l", 7])
+            win.add_text(text="Quit", pos=["l", 8])
+            win.add_text(text="AutoPilot", pos=["l", 2])
+            win.add_text(text="ShowPath", pos=["l", 3])
+            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 4])
 
-            win.add_text(text="r", pos=["r", 2], format=format["underlined"])
-            win.add_text(text="n", pos=["r", 3], format=format["underlined"])
-            win.add_text(text="m", pos=["r", 5], format=format["underlined"])
-            win.add_text(text="q", pos=["r", 6], format=format["underlined"])
-            win.add_text(text="a", pos=["r", 7], format=format["underlined"])
-            win.add_text(text="p", pos=["r", 8], format=format["underlined"])
+            win.add_text(text=toggle[self.autopilot], pos=["nr", 2], format=format["bold"]+format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.show_path], pos=["nr", 3], format=format["bold"]+format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
+
+
+            win.add_text(text="Enter", pos=["r", 5], format=format["underlined"])
+            win.add_text(text="n", pos=["r", 6], format=format["underlined"])
+            win.add_text(text="backspace", pos=["r", 7], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 8], format=format["underlined"])
+            win.add_text(text="a", pos=["r", 2], format=format["underlined"])
+            win.add_text(text="p", pos=["r", 3], format=format["underlined"])
 
             screen.add_window(win)
             screen.show()
