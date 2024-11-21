@@ -16,12 +16,24 @@ class Game:
     def switch(self, code):
         match code:
             case 1:
-                return self.menu()
+                return self.main_menu()
             case 2:
                 return self.run()
         return 0
 
-    def menu(self):
+    def gameover_menu(self):
+        ...
+
+    def login_menu(self):
+        ...
+
+    def signin_menu(self):
+        ...
+
+    def pause_menu(self):
+        ...
+
+    def main_menu(self):
         screen = Screen()
         win = Window(size=[25, 8])
         win.set_header(title="Menu")
