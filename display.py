@@ -268,16 +268,17 @@ def welcome(name="snake"):
     sleep(0.5)
 
 
-def message(message, time, format):
+def message(header, message, time, form="regular"):
     scr = Screen()
-    popup = Window(size=(16, 2), pos=("m", "m"))
-    popup.set_border(horizontal=" ", vertical=" ",
-                     corners=(" ", " ", " ", " "))
+    popup = Window(size=[25, 5])
+    popup.set_header(title=header)
+    popup.set_border(*borders["double-line"])
 
     while time > 0:
         popup.text = []
-        popup.add_text(text=message, pos=["m", 1],
-                       format=format)
+        for t in range(len(message)):
+            popup.add_text(text=message[t], pos=["m", t+2],
+                            format=format[form])
         popup.set_pos(pos=("m", "m"))
         scr.clear()
         scr.add_window(popup)
