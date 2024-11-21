@@ -12,7 +12,7 @@ class Game:
         self.autopilot = autopilot
         self.show_path = show_path
         return
-    
+
     def switch(self, code):
         match code:
             case 1:
@@ -57,13 +57,12 @@ class Game:
             win.add_text(text="(p) ShowPath", pos=["l", 6])
             win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 7])
             win.add_text(text="Press enter to start.", pos=["l", 8])
-            
+
             win.add_text(text=toggle[self.wall], pos=["r", 2])
             win.add_text(text=intensity[self.size], pos=["r", 3])
             win.add_text(text=intensity[self.step_time], pos=["r", 4])
             win.add_text(text=toggle[self.autopilot], pos=["r", 5])
             win.add_text(text=toggle[self.show_path], pos=["r", 6])
-
 
             screen.add_window(win)
             screen.show()
@@ -74,16 +73,6 @@ class Game:
                 case "l":
                     self.size = self.size + 8 if self.size != 32 else 16
                     self.pressed_key = None
-                # case "c":
-                #     self.pressed_key = None
-                #     self.mode = "beta" if self.mode == "classic" else "classic"
-                #     file = open(self.data_path, "r")
-                #     data = json.loads(file.read())
-                #     self.high_score = data[self.username][self.mode]["high-score"]
-                #     self.max_lines = data[self.username][self.mode]["max-lines"]
-                #     self.best_level = data[self.username][self.mode]["best-level"]
-                #     code = 1
-                #     break
                 case "s":
                     self.step_time = self.step_time - 10 if self.step_time != 5 else 25
                     self.pressed_key = None
@@ -209,37 +198,41 @@ class Game:
         self.direction = (0, 1)
         if not self.autopilot:
             add_hotkey("up", self.set_direction, args=["up"], suppress=True)
-            add_hotkey("down", self.set_direction, args=["down"], suppress=True)
-            add_hotkey("right", self.set_direction, args=["right"], suppress=True)
-            add_hotkey("left", self.set_direction, args=["left"], suppress=True)
+            add_hotkey("down", self.set_direction,
+                       args=["down"], suppress=True)
+            add_hotkey("right", self.set_direction,
+                       args=["right"], suppress=True)
+            add_hotkey("left", self.set_direction,
+                       args=["left"], suppress=True)
+        game_size = self.size
         if self.wall:
-            self.size += 2
-        win = Window((self.size*2, self.size))
+            game_size += 2
+        win = Window((game_size*2, game_size))
         self.window = win
         win.show_path = self.show_path
-        win.set_board(self.size)
+        win.set_board(game_size)
         if self.wall:
-            win.board.set(*[(0, i) for i in range(self.size)])
-            win.board.set(*[(i, 0) for i in range(self.size)])
-            win.board.set(*[(self.size-1, i) for i in range(self.size)])
-            win.board.set(*[(i, self.size-1) for i in range(self.size)])
+            win.board.set(*[(0, i) for i in range(game_size)])
+            win.board.set(*[(i, 0) for i in range(game_size)])
+            win.board.set(*[(game_size-1, i) for i in range(game_size)])
+            win.board.set(*[(i, game_size-1) for i in range(game_size)])
             win.set_border(*borders["no-border"])
         else:
             win.set_border(*borders["rounded"])
 
         # test
-        # win.board.set(*[(i, self.size-3) for i in range(2)])
+        # win.board.set(*[(i, game_size-3) for i in range(2)])
 
         # snake_body = [win.board.drop_apple()]
         # test
-        snake_body = [(1, self.size//2-1), (1, self.size//2),
-                      (1, self.size//2+1)]
+        snake_body = [(1, game_size//2-1), (1, game_size//2),
+                      (1, game_size//2+1)]
         win.board.set(snake_body[0], value=1)
         win.board.set(snake_body[1], value=2)
         win.board.set(snake_body[2], value=3)
 
         # test
-        # win.apple = (1, self.size-2)
+        # win.apple = (1, game_size-2)
         win.apple = win.board.drop_apple()
         scr = Screen()
         # print(win.board)

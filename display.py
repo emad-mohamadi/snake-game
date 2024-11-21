@@ -134,16 +134,16 @@ class Screen:
             if window.board:
                 for i in range(window.board.size):
                     for j in range(window.board.size):
-                        if window.show_path and (i, j) in window.path:
-                            self.matrix[window.pos[1]+i][window.pos[0] +
-                                                         j*2] = window.show_board(0) + self.default
-                            self.matrix[window.pos[1]+i][window.pos[0] +
-                                                         j*2+1] = window.show_board(0) + self.default
-                        elif window.board.mat[i][j]:
+                        if window.board.mat[i][j]:
                             self.matrix[window.pos[1]+i][window.pos[0] +
                                                          j*2] = window.show_board(window.board.mat[i][j]) + self.default
                             self.matrix[window.pos[1]+i][window.pos[0] +
                                                          j*2+1] = window.show_board(window.board.mat[i][j]) + self.default
+                        elif window.show_path and (i, j) in window.path:
+                            self.matrix[window.pos[1]+i][window.pos[0] +
+                                                         j*2] = window.show_board(0) + self.default
+                            self.matrix[window.pos[1]+i][window.pos[0] +
+                                                         j*2+1] = window.show_board(0) + self.default
 
             # Apple
             if window.apple:
