@@ -171,6 +171,11 @@ class Game:
         self.pressed_key = key
         return
 
+    def get_direction(self):
+        self.direction = (self.snake_body[-1][0]-self.snake_body[-2]
+                          [0], self.snake_body[-1][1]-self.snake_body[-2][1])
+        return
+
     def set_direction(self, dir):
         if dir == "up":
             self.direction = (-1, 0) if self.direction != (1, 0) else (1, 0)
@@ -265,6 +270,7 @@ class Game:
                     break
                 case "a":
                     self.autopilot = not self.autopilot
+                    self.get_direction()
                     self.pressed_key = None
                 case "p":
                     self.show_path = not self.show_path
