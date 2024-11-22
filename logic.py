@@ -34,6 +34,8 @@ class Game:
                 return self.signin_menu()
             case 5:
                 return self.pause_menu()
+            case 6:
+                return self.run()
 
         return 0
 
@@ -44,7 +46,8 @@ class Game:
         win.set_border()
 
         add_hotkey("enter", self.press_key, args=["enter"], suppress=True)
-        add_hotkey("backspace", self.press_key, args=["backspace"], suppress=True)
+        add_hotkey("backspace", self.press_key,
+                   args=["backspace"], suppress=True)
         add_hotkey("shift+l", self.press_key, args=["L"], suppress=True)
         add_hotkey("esc", self.press_key, args=["Q"], suppress=True)
         for i in range(97, 123):
@@ -74,7 +77,7 @@ class Game:
                             }
                             self.save_data(self.data_path)
                             message([f"welcome {typed}"], 1.5,
-                                form=format["fore"]["green"])
+                                    form=format["fore"]["green"])
                             code = 1
                         else:
                             message(
@@ -197,20 +200,28 @@ class Game:
             win.add_text(text="Logout", pos=["l", 9])
             win.add_text(text="Exit", pos=["l", 10])
 
-            win.add_text(text=toggle[self.wall], pos=["nr", 2], format=format["bold"]+format["fore"]["green"] if self.wall else format["bold"]+format["fore"]["red"])
-            win.add_text(text=intensity[self.size], pos=["nr", 3], format=format["bold"]+format["fore"]["blue"])
-            win.add_text(text=intensity[self.step_time], pos=["nr", 4], format=format["bold"]+format["fore"]["blue"])
-            win.add_text(text=toggle[self.autopilot], pos=["nr", 5], format=format["bold"]+format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
-            win.add_text(text=toggle[self.show_path], pos=["nr", 6], format=format["bold"]+format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.wall], pos=["nr", 2], format=format["bold"] +
+                         format["fore"]["green"] if self.wall else format["bold"]+format["fore"]["red"])
+            win.add_text(text=intensity[self.size], pos=[
+                         "nr", 3], format=format["bold"]+format["fore"]["blue"])
+            win.add_text(text=intensity[self.step_time], pos=[
+                         "nr", 4], format=format["bold"]+format["fore"]["blue"])
+            win.add_text(text=toggle[self.autopilot], pos=["nr", 5], format=format["bold"] +
+                         format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.show_path], pos=["nr", 6], format=format["bold"] +
+                         format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
 
             win.add_text(text="w", pos=["r", 2], format=format["underlined"])
             win.add_text(text="l", pos=["r", 3], format=format["underlined"])
             win.add_text(text="s", pos=["r", 4], format=format["underlined"])
             win.add_text(text="a", pos=["r", 5], format=format["underlined"])
             win.add_text(text="p", pos=["r", 6], format=format["underlined"])
-            win.add_text(text="ENTER", pos=["r", 8], format=format["underlined"])
-            win.add_text(text="backspace", pos=["r", 9], format=format["underlined"])
-            win.add_text(text="esc", pos=["r", 10], format=format["underlined"])
+            win.add_text(text="ENTER", pos=[
+                         "r", 8], format=format["underlined"])
+            win.add_text(text="backspace", pos=[
+                         "r", 9], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 10],
+                         format=format["underlined"])
 
             screen.add_window(win)
             screen.show()
@@ -316,13 +327,16 @@ class Game:
             win.add_text(text="ShowPath", pos=["l", 3])
             win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 4])
 
-            win.add_text(text=toggle[self.autopilot], pos=["nr", 2], format=format["bold"]+format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
-            win.add_text(text=toggle[self.show_path], pos=["nr", 3], format=format["bold"]+format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.autopilot], pos=["nr", 2], format=format["bold"] +
+                         format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.show_path], pos=["nr", 3], format=format["bold"] +
+                         format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
 
-
-            win.add_text(text="Enter", pos=["r", 5], format=format["underlined"])
+            win.add_text(text="Enter", pos=[
+                         "r", 5], format=format["underlined"])
             win.add_text(text="n", pos=["r", 6], format=format["underlined"])
-            win.add_text(text="backspace", pos=["r", 7], format=format["underlined"])
+            win.add_text(text="backspace", pos=[
+                         "r", 7], format=format["underlined"])
             win.add_text(text="esc", pos=["r", 8], format=format["underlined"])
             win.add_text(text="a", pos=["r", 2], format=format["underlined"])
             win.add_text(text="p", pos=["r", 3], format=format["underlined"])
@@ -332,7 +346,7 @@ class Game:
             match self.pressed_key:
                 case "r":
                     self.pressed_key = None
-                    code = 2
+                    code = 6
                     break
                 case "n":
                     self.pressed_key = None
@@ -435,6 +449,8 @@ class Game:
         # print(win.board)
         # self.direction = (0, 1)
         win = self.window
+        win.show_path = self.show_path
+
         scr = Screen()
         while True:
             scr.clear()
