@@ -1,5 +1,5 @@
 from keyboard import add_hotkey, remove_all_hotkeys
-from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity
+from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity, apple_prizes
 from json import load, dump
 
 
@@ -405,7 +405,7 @@ class Game:
         win.board.set(self.snake_body[1], value=2)
         win.board.set(self.snake_body[2], value=3)
 
-        win.apple, win.prize = win.board.drop_apple()
+        win.apple, win.apple_code = win.board.drop_apple()
 
         self.window = win
         return self.run()
@@ -469,14 +469,13 @@ class Game:
 
             if not win.paused:
                 if next_step == win.apple:
-                    self.score += 1
+                    self.score += apple_prizes[win.apple_code][0]
                     if self.data[self.username][str(self.wall)]["hs"] < self.score:
                         self.data[self.username][str(
                             self.wall)]["hs"] = self.score
                         self.record_broken = True
-                    if win.prize:
-                        self.shrink(times=win.prize)
-                    win.apple, win.prize = win.board.drop_apple()
+                    self.shrink(times=apple_prizes[win.apple_code][1])
+                    win.apple, win.apple_code = win.board.drop_apple()
                 else:
                     # win.board.set(self.snake_body.pop(0), value=0)
                     self.shrink()

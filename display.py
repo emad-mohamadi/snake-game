@@ -4,7 +4,21 @@ from random import choice, randint
 from math import ceil
 from os import get_terminal_size as console_size
 
-toggle = ["n", "Y"]
+toggle = ["OFF", "ON"]
+
+
+apple_prizes = {
+    1: (1, 0),
+    2: (1, 1),
+    3: (1, 2),
+    4: (2, 0),
+    5: (2, 1)
+}
+
+apple_shapes = {
+    1: ["▗", "▖"],
+    2: ["◀", "▶"]
+}
 
 intensity = {
     16: "+",
@@ -55,6 +69,13 @@ format = {
     "from-beginning": "\033[1;1H"
 }
 
+apple_colors = {
+    1: format["fore"]["red"],
+    2: format["fore"]["purple"],
+    3: format["fore"]["teal"],
+    4: format["fore"]["red"],
+    5: format["fore"]["purple"],
+}
 
 theme = {
     "classic": format["regular"],
@@ -89,79 +110,79 @@ class Screen:
         x_end = window.pos[0] + window.size[0] + 1
         y_end = window.pos[1] + window.size[1] + 1
         # Borders & Fill
-        try:
-            char_size = len(window.fill)
-            for i in range(x_begin, x_end+1):
-                if i < 1:
+        # try:
+        char_size = len(window.fill)
+        for i in range(x_begin, x_end+1):
+            if i < 1:
+                raise IndexError
+            for j in range(y_begin, y_end+1):
+                if j < 1:
                     raise IndexError
-                for j in range(y_begin, y_end+1):
-                    if j < 1:
-                        raise IndexError
-                    if (x_begin < i < x_end) and (y_begin < j < y_end):
-                        self.matrix[j-1][i-1] = window.fill_format + \
-                            window.fill[i % char_size] + self.default
-                    elif x_begin < i < x_end:
-                        self.matrix[j-1][i-1] = window.border_format + \
-                            window.horizontal + self.default
-                    elif y_begin < j < y_end:
-                        self.matrix[j-1][i-1] = window.border_format + \
-                            window.vertical + self.default
-                    elif i == x_begin and j == y_begin:
-                        self.matrix[j-1][i-1] = window.border_format + \
-                            window.corners[0] + self.default
-                    elif i == x_end and j == y_begin:
-                        self.matrix[j-1][i-1] = window.border_format + \
-                            window.corners[1] + self.default
-                    elif i == x_begin and j == y_end:
-                        self.matrix[j-1][i-1] = window.border_format + \
-                            window.corners[2] + self.default
-                    elif i == x_end and j == y_end:
-                        self.matrix[j-1][i-1] = window.border_format + \
-                            window.corners[3] + self.default
-            # Header
-            pos = window.pos[0] + (window.size[0] - len(window.header)) // 2
-            for char in window.header:
-                self.matrix[y_begin-1][pos] = window.header_format + \
-                    char + self.default
-                pos += 1
-            # Text
-            for text, pos, size, format in window.text:
-                for i in range(size):
-                    self.matrix[y_begin+pos[1]-1][x_begin+pos[0] +
-                                                  i-1] = format + text[i] + self.default
+                if (x_begin < i < x_end) and (y_begin < j < y_end):
+                    self.matrix[j-1][i-1] = window.fill_format + \
+                        window.fill[i % char_size] + self.default
+                elif x_begin < i < x_end:
+                    self.matrix[j-1][i-1] = window.border_format + \
+                        window.horizontal + self.default
+                elif y_begin < j < y_end:
+                    self.matrix[j-1][i-1] = window.border_format + \
+                        window.vertical + self.default
+                elif i == x_begin and j == y_begin:
+                    self.matrix[j-1][i-1] = window.border_format + \
+                        window.corners[0] + self.default
+                elif i == x_end and j == y_begin:
+                    self.matrix[j-1][i-1] = window.border_format + \
+                        window.corners[1] + self.default
+                elif i == x_begin and j == y_end:
+                    self.matrix[j-1][i-1] = window.border_format + \
+                        window.corners[2] + self.default
+                elif i == x_end and j == y_end:
+                    self.matrix[j-1][i-1] = window.border_format + \
+                        window.corners[3] + self.default
+        # Header
+        pos = window.pos[0] + (window.size[0] - len(window.header)) // 2
+        for char in window.header:
+            self.matrix[y_begin-1][pos] = window.header_format + \
+                char + self.default
+            pos += 1
+        # Text
+        for text, pos, size, format in window.text:
+            for i in range(size):
+                self.matrix[y_begin+pos[1]-1][x_begin+pos[0] +
+                                              i-1] = format + text[i] + self.default
 
-            # Snake
-            if window.board:
-                for i in range(window.board.size):
-                    for j in range(window.board.size):
-                        if window.board.mat[i][j]:
-                            self.matrix[window.pos[1]+i][window.pos[0] +
-                                                         j*2] = window.show_board(window.board.mat[i][j]) + self.default
-                            self.matrix[window.pos[1]+i][window.pos[0] +
-                                                         j*2+1] = window.show_board(window.board.mat[i][j]) + self.default
-                        elif window.show_path and (i, j) in window.path:
-                            self.matrix[window.pos[1]+i][window.pos[0] +
-                                                         j*2] = window.show_board(0) + self.default
-                            self.matrix[window.pos[1]+i][window.pos[0] +
-                                                         j*2+1] = window.show_board(0) + self.default
+        # Snake
+        if window.board:
+            for i in range(window.board.size):
+                for j in range(window.board.size):
+                    if window.board.mat[i][j]:
+                        self.matrix[window.pos[1]+i][window.pos[0] +
+                                                     j*2] = window.show_board(window.board.mat[i][j]) + self.default
+                        self.matrix[window.pos[1]+i][window.pos[0] +
+                                                     j*2+1] = window.show_board(window.board.mat[i][j]) + self.default
+                    elif window.show_path and (i, j) in window.path:
+                        self.matrix[window.pos[1]+i][window.pos[0] +
+                                                     j*2] = window.show_board(0) + self.default
+                        self.matrix[window.pos[1]+i][window.pos[0] +
+                                                     j*2+1] = window.show_board(0) + self.default
 
-            # Apple
-            if window.apple:
-                self.matrix[window.pos[1]+window.apple[0]][window.pos[0] +
-                                                           window.apple[1]*2] = window.show_board(-2) + self.default
-                self.matrix[window.pos[1]+window.apple[0]][window.pos[0] +
-                                                           window.apple[1]*2+1] = window.show_board(-2) + self.default
-        except IndexError:
-            if window.main:
-                window.paused = True
-                pause = Window(size=(console_size()[0]-2, console_size()[1]-2))
-                pause.text = []
-                pause.add_text(text="PAUSED", pos=[
-                               "m", ceil(console_size()[1]/2)-1])
-                self.clear()
-                self.add_window(pause)
-            else:
-                self.clear()
+        # Apple
+        if window.apple:
+            self.matrix[window.pos[1]+window.apple[0]][window.pos[0] +
+                                                       window.apple[1]*2] = window.show_board(-2, i=0) + self.default
+            self.matrix[window.pos[1]+window.apple[0]][window.pos[0] +
+                                                       window.apple[1]*2+1] = window.show_board(-2, i=1) + self.default
+        # except IndexError:
+        #     if window.main:
+        #         window.paused = True
+        #         pause = Window(size=(console_size()[0]-2, console_size()[1]-2))
+        #         pause.text = []
+        #         pause.add_text(text="PAUSED", pos=[
+        #                        "m", ceil(console_size()[1]/2)-1])
+        #         self.clear()
+        #         self.add_window(pause)
+        #     else:
+        #         self.clear()
         return
 
 
@@ -171,7 +192,7 @@ class Window:
     main = True
     board = None
     apple = None
-    prize = None
+    apple_code = None
     path = None
     text = []
 
@@ -188,7 +209,7 @@ class Window:
         self.board = Board(size)
         return
 
-    def show_board(self, code):
+    def show_board(self, code, i=None):
         if code >= 1:
             # return f"\033[38;5;{232+code//3}m█"
             return format["fore"]["blue"] + "█"
@@ -197,7 +218,7 @@ class Window:
         elif code == -1:
             return format["fore"]["yellow"] + "█"
         elif code == -2:
-            return format["fore"]["red"] + str(self.prize)
+            return apple_colors[self.apple_code] + apple_shapes[apple_prizes[self.apple_code][0]][i]
             # return format["fore"][choice(colors["apple"])] + "█"
 
     def set_pos(self, pos):
