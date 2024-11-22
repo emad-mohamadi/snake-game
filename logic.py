@@ -260,6 +260,88 @@ class Game:
         remove_all_hotkeys()
         return code
 
+    def pause_menu(self):
+        screen = Screen()
+        win = Window(size=[28, 9])
+        win.set_header(title=" Paused ")
+        win.set_border()
+
+        add_hotkey("enter", self.press_key, args=["r"], suppress=True)
+        add_hotkey("n", self.press_key, args=["n"], suppress=True)
+        add_hotkey("esc", self.press_key, args=["q"], suppress=True)
+        add_hotkey("backspace", self.press_key, args=["m"], suppress=True)
+        add_hotkey("a", self.press_key, args=["a"], suppress=True)
+        add_hotkey("s", self.press_key, args=["s"], suppress=True)
+        add_hotkey("p", self.press_key, args=["p"], suppress=True)
+        # self.save_game()
+
+        while True:
+            win.text = []
+            win.add_text(text="Resume", pos=["l", 6])
+            win.add_text(text="New Game", pos=["l", 7])
+            win.add_text(text="Back to Menu", pos=["l", 8])
+            win.add_text(text="Quit", pos=["l", 9])
+            win.add_text(text="AutoPilot", pos=["l", 2])
+            win.add_text(text="ShowPath", pos=["l", 3])
+            win.add_text(text="Speed", pos=["l", 4])
+            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 5])
+
+            win.add_text(text=toggle[self.autopilot], pos=["nr", 2], format=format["bold"] +
+                         format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.show_path], pos=["nr", 3], format=format["bold"] +
+                         format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
+            win.add_text(text=intensity[self.step_time], pos=[
+                         "nr", 4], format=format["bold"] + format["fore"]["blue"])
+
+            win.add_text(text="Enter", pos=[
+                         "r", 6], format=format["underlined"])
+            win.add_text(text="n", pos=["r", 7], format=format["underlined"])
+            win.add_text(text="backspace", pos=[
+                         "r", 8], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 9], format=format["underlined"])
+            win.add_text(text="a", pos=["r", 2], format=format["underlined"])
+            win.add_text(text="p", pos=["r", 3], format=format["underlined"])
+            win.add_text(text="s", pos=["r", 4], format=format["underlined"])
+
+            screen.add_window(win)
+            match self.pressed_key:
+                case "r":
+                    self.pressed_key = None
+                    code = 6
+                    break
+                case "n":
+                    self.pressed_key = None
+                    code = 2
+                    # Here we should set up a new game
+                    # by initializing some parameters in 'self.run'
+                    # again.
+                    break
+                case "m":
+                    self.pressed_key = None
+                    code = 1
+                    break
+                case "q":
+                    self.pressed_key = None
+                    code = 0
+                    break
+                case "a":
+                    self.autopilot = not self.autopilot
+                    self.get_direction()
+                    self.pressed_key = None
+                case "p":
+                    self.show_path = not self.show_path
+                    self.pressed_key = None
+                case "s":
+                    self.step_time = self.step_time - 10 if self.step_time != 5 else 25
+                    self.pressed_key = None
+            sleep(self.step_time/100)
+            screen.show()
+            screen.clear()
+            win.set_pos(("m", "m"))
+            win.set_header(title="Paused")
+        remove_all_hotkeys()
+        return code
+
     def press_key(self, key):
         self.pressed_key = key
         return
@@ -308,80 +390,6 @@ class Game:
         self.save_data(self.data_path)
         return
 
-    def pause_menu(self):
-        screen = Screen()
-        win = Window(size=[28, 8])
-        win.set_header(title=" Paused ")
-        win.set_border()
-
-        add_hotkey("enter", self.press_key, args=["r"], suppress=True)
-        add_hotkey("n", self.press_key, args=["n"], suppress=True)
-        add_hotkey("esc", self.press_key, args=["q"], suppress=True)
-        add_hotkey("backspace", self.press_key, args=["m"], suppress=True)
-        add_hotkey("a", self.press_key, args=["a"], suppress=True)
-        add_hotkey("p", self.press_key, args=["p"], suppress=True)
-        # self.save_game()
-
-        while True:
-            win.text = []
-            win.add_text(text="Resume", pos=["l", 5])
-            win.add_text(text="New Game", pos=["l", 6])
-            win.add_text(text="Back to Menu", pos=["l", 7])
-            win.add_text(text="Quit", pos=["l", 8])
-            win.add_text(text="AutoPilot", pos=["l", 2])
-            win.add_text(text="ShowPath", pos=["l", 3])
-            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 4])
-
-            win.add_text(text=toggle[self.autopilot], pos=["nr", 2], format=format["bold"] +
-                         format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
-            win.add_text(text=toggle[self.show_path], pos=["nr", 3], format=format["bold"] +
-                         format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
-
-            win.add_text(text="Enter", pos=[
-                         "r", 5], format=format["underlined"])
-            win.add_text(text="n", pos=["r", 6], format=format["underlined"])
-            win.add_text(text="backspace", pos=[
-                         "r", 7], format=format["underlined"])
-            win.add_text(text="esc", pos=["r", 8], format=format["underlined"])
-            win.add_text(text="a", pos=["r", 2], format=format["underlined"])
-            win.add_text(text="p", pos=["r", 3], format=format["underlined"])
-
-            screen.add_window(win)
-            match self.pressed_key:
-                case "r":
-                    self.pressed_key = None
-                    code = 6
-                    break
-                case "n":
-                    self.pressed_key = None
-                    code = 2
-                    # Here we should set up a new game
-                    # by initializing some parameters in 'self.run'
-                    # again.
-                    break
-                case "m":
-                    self.pressed_key = None
-                    code = 1
-                    break
-                case "q":
-                    self.pressed_key = None
-                    code = 0
-                    break
-                case "a":
-                    self.autopilot = not self.autopilot
-                    self.get_direction()
-                    self.pressed_key = None
-                case "p":
-                    self.show_path = not self.show_path
-                    self.pressed_key = None
-            sleep(self.step_time/100)
-            screen.show()
-            screen.clear()
-            win.set_pos(("m", "m"))
-            win.set_header(title="Paused")
-        remove_all_hotkeys()
-        return code
-
     def start(self):
         self.score = 0
         self.direction = (0, 1)
@@ -398,7 +406,7 @@ class Game:
             win.board.set(*[(i, game_size-1) for i in range(game_size)])
             win.set_border(*borders["no-border"])
         else:
-            win.set_border(*borders["rounded"])
+            win.set_border(*borders["dotted"])
 
         self.snake_body = [(1, 1), (1, 2), (1, 3)]
         win.board.set(self.snake_body[0], value=1)
