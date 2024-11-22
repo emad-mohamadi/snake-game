@@ -4,7 +4,7 @@ from random import choice, randint
 from math import ceil
 from os import get_terminal_size as console_size
 
-toggle = ["◎", "◉"]
+toggle = ["☐", "☑"]
 
 
 apple_prizes = {
