@@ -450,9 +450,11 @@ class Game:
                 self.snake_body.pop(0)
         return
 
-    def make_obstacle(self):
+    def make_obstacle(self, head):
         if self.obstacle and choice([0, 0, 0, 1]):
             loc = self.window.board.drop_apple()[0]
+            if loc in self.window.board.neighbors(head, distance=-1)+[self.window.apple]:
+                return
             self.window.board.set(loc, value=-1)
             self.obstacles.append(loc)
             if len(self.obstacles) == (self.size**2//20):
@@ -469,11 +471,11 @@ class Game:
         add_hotkey("o", self.press_key, args=["o"], suppress=True)
         add_hotkey("up", self.set_direction, args=["up"], suppress=True)
         add_hotkey("down", self.set_direction,
-                    args=["down"], suppress=True)
+                   args=["down"], suppress=True)
         add_hotkey("right", self.set_direction,
-                    args=["right"], suppress=True)
+                   args=["right"], suppress=True)
         add_hotkey("left", self.set_direction,
-                    args=["left"], suppress=True)
+                   args=["left"], suppress=True)
 
         win = self.window
         win.show_path = self.show_path
@@ -591,7 +593,7 @@ class Game:
                         self.record_broken = True
                     self.shrink(times=apple_prizes[win.apple_code][1])
                     win.apple, win.apple_code = win.board.drop_apple()
-                    self.make_obstacle()
+                    self.make_obstacle(head=next_step)
                 else:
                     # win.board.set(self.snake_body.pop(0), value=0)
                     self.shrink()
