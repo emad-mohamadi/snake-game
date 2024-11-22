@@ -172,12 +172,13 @@ class Game:
 
     def main_menu(self):
         screen = Screen()
-        win = Window(size=[25, 10])
+        win = Window(size=[25, 11])
         win.set_header(title="Menu")
         win.set_border(*borders["rounded"])
 
         add_hotkey("w", self.press_key, args=["w"], suppress=True)
         add_hotkey("l", self.press_key, args=["l"], suppress=True)
+        add_hotkey("o", self.press_key, args=["o"], suppress=True)
         add_hotkey("s", self.press_key, args=["s"], suppress=True)
         add_hotkey("a", self.press_key, args=["a"], suppress=True)
         add_hotkey("p", self.press_key, args=["p"], suppress=True)
@@ -188,36 +189,40 @@ class Game:
             win.text = []
             # if saved:
             win.add_text(text="Wall", pos=["l", 2])
-            win.add_text(text="Size", pos=["l", 3])
-            win.add_text(text="Speed", pos=["l", 4])
-            win.add_text(text="AutoPilot", pos=["l", 5])
-            win.add_text(text="ShowPath", pos=["l", 6])
-            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 7])
-            win.add_text(text="Start", pos=["l", 8])
-            win.add_text(text="Logout", pos=["l", 9])
-            win.add_text(text="Exit", pos=["l", 10])
+            win.add_text(text="Obstacles", pos=["l", 3])
+            win.add_text(text="Size", pos=["l", 4])
+            win.add_text(text="Speed", pos=["l", 5])
+            win.add_text(text="AutoPilot", pos=["l", 6])
+            win.add_text(text="ShowPath", pos=["l", 7])
+            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 8])
+            win.add_text(text="Start", pos=["l", 9])
+            win.add_text(text="Logout", pos=["l", 10])
+            win.add_text(text="Exit", pos=["l", 11])
 
             win.add_text(text=toggle[self.wall], pos=["nr", 2], format=format["bold"] +
                          format["fore"]["green"] if self.wall else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.obstacle], pos=["nr", 3], format=format["bold"] +
+                         format["fore"]["green"] if self.obstacle else format["bold"]+format["fore"]["red"])
             win.add_text(text=intensity[self.size], pos=[
-                         "nr", 3], format=format["bold"]+format["fore"]["blue"])
-            win.add_text(text=intensity[self.step_time], pos=[
                          "nr", 4], format=format["bold"]+format["fore"]["blue"])
-            win.add_text(text=toggle[self.autopilot], pos=["nr", 5], format=format["bold"] +
+            win.add_text(text=intensity[self.step_time], pos=[
+                         "nr", 5], format=format["bold"]+format["fore"]["blue"])
+            win.add_text(text=toggle[self.autopilot], pos=["nr", 6], format=format["bold"] +
                          format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
-            win.add_text(text=toggle[self.show_path], pos=["nr", 6], format=format["bold"] +
+            win.add_text(text=toggle[self.show_path], pos=["nr", 7], format=format["bold"] +
                          format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
 
             win.add_text(text="w", pos=["r", 2], format=format["underlined"])
-            win.add_text(text="l", pos=["r", 3], format=format["underlined"])
-            win.add_text(text="s", pos=["r", 4], format=format["underlined"])
-            win.add_text(text="a", pos=["r", 5], format=format["underlined"])
-            win.add_text(text="p", pos=["r", 6], format=format["underlined"])
+            win.add_text(text="o", pos=["r", 3], format=format["underlined"])
+            win.add_text(text="l", pos=["r", 4], format=format["underlined"])
+            win.add_text(text="s", pos=["r", 5], format=format["underlined"])
+            win.add_text(text="a", pos=["r", 6], format=format["underlined"])
+            win.add_text(text="p", pos=["r", 7], format=format["underlined"])
             win.add_text(text="ENTER", pos=[
-                         "r", 8], format=format["underlined"])
-            win.add_text(text="backspace", pos=[
                          "r", 9], format=format["underlined"])
-            win.add_text(text="esc", pos=["r", 10],
+            win.add_text(text="backspace", pos=[
+                         "r", 10], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 11],
                          format=format["underlined"])
 
             screen.add_window(win)
@@ -236,6 +241,9 @@ class Game:
                     self.pressed_key = None
                 case "p":
                     self.show_path = not self.show_path
+                    self.pressed_key = None
+                case "o":
+                    self.obstacle = not self.obstacle
                     self.pressed_key = None
                 case "enter":
                     self.pressed_key = None
@@ -259,7 +267,7 @@ class Game:
 
     def pause_menu(self):
         screen = Screen()
-        win = Window(size=[28, 9])
+        win = Window(size=[28, 10])
         win.set_header(title=" Paused ")
         win.set_border()
 
@@ -270,35 +278,40 @@ class Game:
         add_hotkey("a", self.press_key, args=["a"], suppress=True)
         add_hotkey("s", self.press_key, args=["s"], suppress=True)
         add_hotkey("p", self.press_key, args=["p"], suppress=True)
+        add_hotkey("o", self.press_key, args=["o"], suppress=True)
         # self.save_game()
 
         while True:
             win.text = []
-            win.add_text(text="Resume", pos=["l", 6])
-            win.add_text(text="New Game", pos=["l", 7])
-            win.add_text(text="Back to Menu", pos=["l", 8])
-            win.add_text(text="Quit", pos=["l", 9])
+            win.add_text(text="Resume", pos=["l", 7])
+            win.add_text(text="New Game", pos=["l", 8])
+            win.add_text(text="Back to Menu", pos=["l", 9])
+            win.add_text(text="Quit", pos=["l", 10])
             win.add_text(text="AutoPilot", pos=["l", 2])
             win.add_text(text="ShowPath", pos=["l", 3])
-            win.add_text(text="Speed", pos=["l", 4])
-            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 5])
+            win.add_text(text="Obstacles", pos=["l", 4])
+            win.add_text(text="Speed", pos=["l", 5])
+            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 6])
 
             win.add_text(text=toggle[self.autopilot], pos=["nr", 2], format=format["bold"] +
                          format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
             win.add_text(text=toggle[self.show_path], pos=["nr", 3], format=format["bold"] +
                          format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
+            win.add_text(text=toggle[self.obstacle], pos=["nr", 4], format=format["bold"] +
+                         format["fore"]["green"] if self.obstacle else format["bold"]+format["fore"]["red"])
             win.add_text(text=intensity[self.step_time], pos=[
-                         "nr", 4], format=format["bold"] + format["fore"]["blue"])
+                         "nr", 5], format=format["bold"] + format["fore"]["blue"])
 
             win.add_text(text="Enter", pos=[
-                         "r", 6], format=format["underlined"])
-            win.add_text(text="n", pos=["r", 7], format=format["underlined"])
+                         "r", 7], format=format["underlined"])
+            win.add_text(text="n", pos=["r", 8], format=format["underlined"])
             win.add_text(text="backspace", pos=[
-                         "r", 8], format=format["underlined"])
-            win.add_text(text="esc", pos=["r", 9], format=format["underlined"])
+                         "r", 9], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 10], format=format["underlined"])
             win.add_text(text="a", pos=["r", 2], format=format["underlined"])
             win.add_text(text="p", pos=["r", 3], format=format["underlined"])
-            win.add_text(text="s", pos=["r", 4], format=format["underlined"])
+            win.add_text(text="o", pos=["r", 4], format=format["underlined"])
+            win.add_text(text="s", pos=["r", 5], format=format["underlined"])
 
             screen.add_window(win)
             match self.pressed_key:
@@ -309,9 +322,6 @@ class Game:
                 case "n":
                     self.pressed_key = None
                     code = 2
-                    # Here we should set up a new game
-                    # by initializing some parameters in 'self.run'
-                    # again.
                     break
                 case "m":
                     self.pressed_key = None
@@ -327,6 +337,9 @@ class Game:
                     self.pressed_key = None
                 case "p":
                     self.show_path = not self.show_path
+                    self.pressed_key = None
+                case "o":
+                    self.obstacle = not self.obstacle
                     self.pressed_key = None
                 case "s":
                     self.step_time = self.step_time - 10 if self.step_time != 5 else 25
@@ -431,6 +444,10 @@ class Game:
         self.load_data(self.data_path)
 
         add_hotkey("esc", self.press_key, args=["esc"], suppress=True)
+        add_hotkey("a", self.press_key, args=["a"], suppress=True)
+        add_hotkey("p", self.press_key, args=["p"], suppress=True)
+        add_hotkey("s", self.press_key, args=["s"], suppress=True)
+        add_hotkey("o", self.press_key, args=["o"], suppress=True)
         if not self.autopilot:
             add_hotkey("up", self.set_direction, args=["up"], suppress=True)
             add_hotkey("down", self.set_direction,
@@ -449,10 +466,25 @@ class Game:
             win.set_header(title=str(self.score)+" " +
                            str(self.data[self.username][str(self.wall)]["hs"]))
             win.set_pos(("m", "m"))
-            if self.pressed_key == "esc":
-                self.save_data(self.data_path)
-                self.pressed_key = None
-                return 5
+            match self.pressed_key:
+                case "esc":
+                    self.save_data(self.data_path)
+                    self.pressed_key = None
+                    return 5
+                case "a":
+                    self.get_direction()
+                    self.autopilot = not self.autopilot
+                    self.pressed_key = None
+                case "p":
+                    self.show_path = not self.show_path
+                    self.window.show_path = self.show_path
+                    self.pressed_key = None
+                case "s":
+                    self.step_time = self.step_time - 10 if self.step_time != 5 else 25
+                    self.pressed_key = None
+                case "o":
+                    self.obstacle = not self.obstacle
+                    self.pressed_key = None
 
             if self.autopilot:
                 sleep(self.step_time/100)
