@@ -214,6 +214,8 @@ class Window:
             pos[0] = 2
         elif pos[0] == "r":
             pos[0] = self.size[0] - len(text)
+        elif pos[0] == "nr":
+            pos[0] = self.size[0] - len(text) - 4
         elif pos[0] == "m":
             pos[0] = (self.size[0] - len(text)) // 2 + 1
         self.text.append((text, pos, len(text), format))
