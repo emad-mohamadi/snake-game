@@ -1,22 +1,23 @@
 from keyboard import add_hotkey, remove_all_hotkeys
-from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity, apple_prizes
+from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity, apple_prizes, apple_shapes, apple_colors
 from json import load, dump
 from random import choice
+
 
 class Game:
     pressed_key = None
     score = 0
-    data_path = "data.json"
     username = None
     record_broken = False
-    obstacle = True
+    obstacle = False
 
-    def __init__(self, size=16, wall=False, autopilot=False, show_path=True, step_time=15):
+    def __init__(self, size=16, wall=False, autopilot=False, show_path=True, step_time=15, data_path="data.json"):
         self.size = size
         self.wall = wall
         self.step_time = step_time
         self.autopilot = autopilot
         self.show_path = show_path
+        self.data_path = data_path
         return
 
     def switch(self, code):
@@ -64,7 +65,7 @@ class Game:
             match self.pressed_key:
                 case "enter":
                     self.pressed_key = None
-                    self.load_data(self.data_path)
+                    self.load_data()
                     if typed not in self.data:
                         if len(typed) > 3:
                             self.username = typed
@@ -72,7 +73,7 @@ class Game:
                                 "True": {"hs": 0, "ml": 3},
                                 "False": {"hs": 0, "ml": 3}
                             }
-                            self.save_data(self.data_path)
+                            self.save_data()
                             message([f"welcome {typed}"], 1.5,
                                     form=format["fore"]["green"])
                             code = 1
@@ -135,7 +136,7 @@ class Game:
             match self.pressed_key:
                 case "enter":
                     self.pressed_key = None
-                    self.load_data(self.data_path)
+                    self.load_data()
                     if typed in self.data:
                         self.username = typed
                         message([f"welcome {typed}"], 1.5,
@@ -271,6 +272,8 @@ class Game:
         win.set_header(title=" Paused ")
         win.set_border()
 
+        self.save_data()
+
         add_hotkey("enter", self.press_key, args=["r"], suppress=True)
         add_hotkey("n", self.press_key, args=["n"], suppress=True)
         add_hotkey("esc", self.press_key, args=["q"], suppress=True)
@@ -307,7 +310,8 @@ class Game:
             win.add_text(text="n", pos=["r", 8], format=format["underlined"])
             win.add_text(text="backspace", pos=[
                          "r", 9], format=format["underlined"])
-            win.add_text(text="esc", pos=["r", 10], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 10],
+                         format=format["underlined"])
             win.add_text(text="a", pos=["r", 2], format=format["underlined"])
             win.add_text(text="p", pos=["r", 3], format=format["underlined"])
             win.add_text(text="o", pos=["r", 4], format=format["underlined"])
@@ -372,13 +376,13 @@ class Game:
             self.direction = (0, -1) if self.direction != (0, 1) else (0, 1)
         return
 
-    def load_data(self, data_path):
-        with open(data_path, "r") as file:
+    def load_data(self):
+        with open(self.data_path, "r") as file:
             self.data = load(file)
         return
 
-    def save_data(self, data_path):
-        with open(data_path, "w") as file:
+    def save_data(self):
+        with open(self.data_path, "w") as file:
             dump(self.data, file, indent=4)
         return
 
@@ -386,6 +390,7 @@ class Game:
         self.window.set_border(format=format["fore"]["red"]+format["bold"])
         scr = Screen()
         scr.add_window(self.window)
+        scr.add_window(self.stat)
         scr.show()
         scr.clear()
         sleep(2)
@@ -397,8 +402,17 @@ class Game:
         message_text = ["", phrase, "", str(self.score)]
         message(message_text, header=" Game Over ",
                 time=3.0, form=format["fore"]["red"]+format["bold"], border=borders["rounded"])
-        self.save_data(self.data_path)
+        self.save_data()
         return
+
+    def leaders(self):
+        score_list = [(user, self.data[user][str(self.wall)]["hs"])
+                      for user in self.data]
+        score_list.sort(key=lambda a: a[1])
+        top = score_list[-4:]
+        if (self.username, self.data[self.username][str(self.wall)]["hs"]) not in top:
+            top[0] = (self.username, self.high_score)
+        return top[::-1]
 
     def start(self):
         self.score = 0
@@ -441,7 +455,7 @@ class Game:
         return
 
     def run(self):
-        self.load_data(self.data_path)
+        self.load_data()
 
         add_hotkey("esc", self.press_key, args=["esc"], suppress=True)
         add_hotkey("a", self.press_key, args=["a"], suppress=True)
@@ -459,16 +473,48 @@ class Game:
 
         win = self.window
         win.show_path = self.show_path
+        statics = Window(size=[20, 14], pos=("m", "m"))
+        self.stat = statics
+        statics.set_header(title="Leaderboard")
+        top = self.leaders()
 
         scr = Screen()
         while True:
-            scr.clear()
-            win.set_header(title=str(self.score)+" " +
-                           str(self.data[self.username][str(self.wall)]["hs"]))
+            statics.text = []
+            statics.set_border()
+            statics.set_pos(pos=(win.pos[0]-24, win.pos[1]+self.wall))
+            statics.add_text(text="User", pos=["l", 1], format=format["dim"])
+            statics.add_text(text="Best", pos=["r", 1], format=format["dim"])
+            statics.add_text(text="├"+"─"*statics.size[0]+"┤", pos=["m", 6])
+            top.sort(key=lambda a: 1/(a[1]+1))
+            rank = 1
+            for user, best in top:
+                if user == self.username:
+                    f = format["bold"]+format["fore"]["yellow"]
+                    top[rank-1] = (user, self.data[user][str(self.wall)]["hs"])
+                else:
+                    f = format["regular"]
+                statics.add_text(
+                    text=f"{rank}-{user}", pos=["l", 1+rank], format=f)
+                statics.add_text(text=str(best), pos=[
+                    "r", 1+rank], format=f)
+                rank += 1
+            statics.add_text(text="prize", pos=[8, 7], format=format["dim"])
+            statics.add_text(text="growth", pos=["r", 7], format=format["dim"])
+            for i in range(1, 6):
+                statics.add_text(
+                    text=apple_shapes[apple_prizes[i][0]][0]+apple_shapes[apple_prizes[i][0]][1], pos=["l", 7+i], format=apple_colors[i]
+                )
+                statics.add_text(text=str(apple_prizes[i][0]), pos=[12, 7+i])
+                statics.add_text(
+                    text=str(1-apple_prizes[i][1]), pos=["r", 7+i])
+            scr.add_window(statics)
+            win.set_header(title=str(self.score))
             win.set_pos(("m", "m"))
+
             match self.pressed_key:
                 case "esc":
-                    self.save_data(self.data_path)
+                    self.save_data()
                     self.pressed_key = None
                     return 5
                 case "a":
@@ -527,6 +573,7 @@ class Game:
 
                 self.data[self.username][str(self.wall)]["ml"] = max(len(self.snake_body),
                                                                      self.data[self.username][str(self.wall)]["ml"])
+            scr.clear()
 
         return 1
 

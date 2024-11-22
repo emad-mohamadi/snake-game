@@ -243,7 +243,7 @@ class Window:
         self.text.append((text, pos, len(text), format))
         return
 
-    def set_border(self, vertical="│", horizontal="─", corners=("┌", "┐", "└", "┘"), format=format["regular"]):
+    def set_border(self, vertical="│", horizontal="─", corners=("╭", "╮", "╰", "╯"), format=format["regular"]):
         self.vertical = vertical
         self.horizontal = horizontal
         self.corners = corners
@@ -265,8 +265,7 @@ def welcome(name="snake"):
     l = len(name)
     scr = Screen()
     welcome = Window(size=(10+l, 2), pos=("m", "m"))
-    welcome.set_border(horizontal=" ", vertical=" ",
-                       corners=(" ", " ", " ", " "))
+    welcome.set_border(*borders["no-border"])
     new = [""] * l
     remaining = l
     progress = 0.0
