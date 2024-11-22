@@ -1,4 +1,4 @@
-from random import randint, choice
+from random import randint, choices
 
 
 class Board:
@@ -11,7 +11,7 @@ class Board:
         new_apple = (randint(0, self.size-1), randint(0, self.size-1))
         while self.is_blocked(new_apple, distance=0):
             new_apple = (randint(0, self.size-1), randint(0, self.size-1))
-        return new_apple
+        return new_apple, choices([0, 1, 2], weights=[0.7, 0.2, 0.1], k=1)[0]
 
     def set(self, *positions, value=-1):
         for position in positions:

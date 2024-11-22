@@ -171,6 +171,7 @@ class Window:
     main = True
     board = None
     apple = None
+    prize = None
     path = None
     text = []
 
@@ -196,7 +197,7 @@ class Window:
         elif code == -1:
             return format["fore"]["yellow"] + "█"
         elif code == -2:
-            return format["fore"]["red"] + "█"
+            return format["fore"]["red"] + str(self.prize)
             # return format["fore"][choice(colors["apple"])] + "█"
 
     def set_pos(self, pos):
