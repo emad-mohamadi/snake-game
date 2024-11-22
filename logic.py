@@ -438,6 +438,7 @@ class Game:
         win.board.set(self.snake_body[2], value=3)
 
         win.apple, win.apple_code = win.board.drop_apple()
+        self.obstacles = []
 
         self.window = win
         return self.run()
@@ -451,7 +452,11 @@ class Game:
 
     def make_obstacle(self):
         if self.obstacle and choice([0, 0, 0, 1]):
-            self.window.board.set(self.window.board.drop_apple()[0], value=-1)
+            loc = self.window.board.drop_apple()[0]
+            self.window.board.set(loc, value=-1)
+            self.obstacles.append(loc)
+            if len(self.obstacles) == (self.size**2//20):
+                self.window.board.set(self.obstacles.pop(0), value=0)
         return
 
     def run(self):
@@ -462,14 +467,13 @@ class Game:
         add_hotkey("p", self.press_key, args=["p"], suppress=True)
         add_hotkey("s", self.press_key, args=["s"], suppress=True)
         add_hotkey("o", self.press_key, args=["o"], suppress=True)
-        if not self.autopilot:
-            add_hotkey("up", self.set_direction, args=["up"], suppress=True)
-            add_hotkey("down", self.set_direction,
-                       args=["down"], suppress=True)
-            add_hotkey("right", self.set_direction,
-                       args=["right"], suppress=True)
-            add_hotkey("left", self.set_direction,
-                       args=["left"], suppress=True)
+        add_hotkey("up", self.set_direction, args=["up"], suppress=True)
+        add_hotkey("down", self.set_direction,
+                    args=["down"], suppress=True)
+        add_hotkey("right", self.set_direction,
+                    args=["right"], suppress=True)
+        add_hotkey("left", self.set_direction,
+                    args=["left"], suppress=True)
 
         win = self.window
         win.show_path = self.show_path
@@ -505,7 +509,7 @@ class Game:
             statics.add_text(text="growth", pos=["r", 7], format=format["dim"])
             for i in range(1, 6):
                 statics.add_text(
-                    text=apple_shapes[apple_prizes[i][0]][0]+apple_shapes[apple_prizes[i][0]][1], pos=["l", 7+i], format=apple_colors[i]
+                    text=apple_shapes[apple_prizes[i][2]][0]+apple_shapes[apple_prizes[i][2]][1], pos=["l", 7+i], format=apple_colors[i]
                 )
                 statics.add_text(text=str(apple_prizes[i][0]), pos=[12, 7+i])
                 statics.add_text(

@@ -8,11 +8,11 @@ toggle = ["◎", "◉"]
 
 
 apple_prizes = {
-    1: (1, 0),
-    2: (1, 1),
-    3: (1, 2),
-    4: (2, 0),
-    5: (2, 1)
+    1: (1, 0, 1),
+    2: (2, 0, 1),
+    3: (3, 0, 1),
+    4: (1, 2, 2),
+    5: (2, 2, 2)
 }
 
 apple_shapes = {
@@ -219,7 +219,7 @@ class Window:
         elif code == -1:
             return format["regular"] + "█"
         elif code == -2:
-            return apple_colors[self.apple_code] + apple_shapes[apple_prizes[self.apple_code][0]][i]
+            return apple_colors[self.apple_code] + apple_shapes[apple_prizes[self.apple_code][2]][i]
             # return format["fore"][choice(colors["apple"])] + "█"
 
     def set_pos(self, pos):
