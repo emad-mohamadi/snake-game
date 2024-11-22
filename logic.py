@@ -1,7 +1,7 @@
 from keyboard import add_hotkey, remove_all_hotkeys
 from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity, apple_prizes
 from json import load, dump
-
+from random import choice
 
 class Game:
     pressed_key = None
@@ -9,10 +9,7 @@ class Game:
     data_path = "data.json"
     username = None
     record_broken = False
-    data = {
-        "high-score": 0,
-        "max-length": 3,
-    }
+    obstacle = True
 
     def __init__(self, size=16, wall=False, autopilot=False, show_path=True, step_time=15):
         self.size = size
@@ -386,7 +383,7 @@ class Game:
             phrase = "New high score:"
         message_text = ["", phrase, "", str(self.score)]
         message(message_text, header=" Game Over ",
-                time=3.0, form=format["fore"]["red"], border=borders["rounded"])
+                time=3.0, form=format["fore"]["red"]+format["bold"], border=borders["rounded"])
         self.save_data(self.data_path)
         return
 
@@ -423,6 +420,11 @@ class Game:
             if len(self.snake_body) > 3:
                 self.window.board.minus(*self.snake_body)
                 self.snake_body.pop(0)
+        return
+
+    def make_obstacle(self):
+        if self.obstacle and choice([0, 0, 0, 1]):
+            self.window.board.set(self.window.board.drop_apple()[0], value=-1)
         return
 
     def run(self):
@@ -484,6 +486,7 @@ class Game:
                         self.record_broken = True
                     self.shrink(times=apple_prizes[win.apple_code][1])
                     win.apple, win.apple_code = win.board.drop_apple()
+                    self.make_obstacle()
                 else:
                     # win.board.set(self.snake_body.pop(0), value=0)
                     self.shrink()
