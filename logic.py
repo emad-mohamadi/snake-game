@@ -135,7 +135,6 @@ class Game:
             win.add_text(text="S", pos=["r", 5], format=format["underlined"])
             win.add_text(text="esc", pos=["r", 6], format=format["underlined"])
             screen.add_window(win)
-            screen.show()
             match self.pressed_key:
                 case "enter":
                     self.pressed_key = None
@@ -166,8 +165,9 @@ class Game:
                         typed += self.pressed_key
                         self.pressed_key = None
 
-            sleep(self.step_time/100)
+            screen.show()
             screen.clear()
+            sleep(self.step_time/100)
             win.set_pos(("m", "m"))
             win.set_header(title="Login")
         remove_all_hotkeys()
@@ -224,7 +224,6 @@ class Game:
                          format=format["underlined"])
 
             screen.add_window(win)
-            screen.show()
             match self.pressed_key:
                 case "w":
                     self.wall = not self.wall
@@ -253,8 +252,9 @@ class Game:
                     self.pressed_key = None
                     code = 0
                     break
-            sleep(self.step_time/100)
+            screen.show()
             screen.clear()
+            sleep(self.step_time/100)
             win.set_pos(("m", "m"))
             win.set_header(title="Menu")
         remove_all_hotkeys()
@@ -262,6 +262,11 @@ class Game:
 
     def press_key(self, key):
         self.pressed_key = key
+        return
+
+    def get_direction(self):
+        self.direction = (self.snake_body[-1][0]-self.snake_body[-2]
+                          [0], self.snake_body[-1][1]-self.snake_body[-2][1])
         return
 
     def set_direction(self, dir):
@@ -342,7 +347,6 @@ class Game:
             win.add_text(text="p", pos=["r", 3], format=format["underlined"])
 
             screen.add_window(win)
-            screen.show()
             match self.pressed_key:
                 case "r":
                     self.pressed_key = None
@@ -365,11 +369,13 @@ class Game:
                     break
                 case "a":
                     self.autopilot = not self.autopilot
+                    self.get_direction()
                     self.pressed_key = None
                 case "p":
                     self.show_path = not self.show_path
                     self.pressed_key = None
             sleep(self.step_time/100)
+            screen.show()
             screen.clear()
             win.set_pos(("m", "m"))
             win.set_header(title="Paused")
@@ -399,10 +405,17 @@ class Game:
         win.board.set(self.snake_body[1], value=2)
         win.board.set(self.snake_body[2], value=3)
 
-        win.apple = win.board.drop_apple()
+        win.apple, win.prize = win.board.drop_apple()
 
         self.window = win
         return self.run()
+
+    def shrink(self, times=1):
+        for _ in range(times):
+            if len(self.snake_body) > 3:
+                self.window.board.minus(*self.snake_body)
+                self.snake_body.pop(0)
+        return
 
     def run(self):
         self.load_data(self.data_path)
@@ -416,38 +429,7 @@ class Game:
                        args=["right"], suppress=True)
             add_hotkey("left", self.set_direction,
                        args=["left"], suppress=True)
-        # game_size = self.size
-        # if self.wall:
-        #     game_size += 2
-        # win = Window((game_size*2, game_size))
-        # self.window = win
-        # win.show_path = self.show_path
-        # win.set_board(game_size)
-        # if self.wall:
-        #     win.board.set(*[(0, i) for i in range(game_size)])
-        #     win.board.set(*[(i, 0) for i in range(game_size)])
-        #     win.board.set(*[(game_size-1, i) for i in range(game_size)])
-        #     win.board.set(*[(i, game_size-1) for i in range(game_size)])
-        #     win.set_border(*borders["no-border"])
-        # else:
-        #     win.set_border(*borders["rounded"])
 
-        # test
-        # win.board.set(*[(i, game_size-3) for i in range(2)])
-
-        # self.snake_body = [win.board.drop_apple()]
-        # test
-        # self.snake_body = [(1, game_size//2-1), (1, game_size//2),
-        #               (1, game_size//2+1)]
-        # win.board.set(self.snake_body[0], value=1)
-        # win.board.set(self.snake_body[1], value=2)
-        # win.board.set(self.snake_body[2], value=3)
-
-        # test
-        # win.apple = (1, game_size-2)
-        # win.apple = win.board.drop_apple()
-        # print(win.board)
-        # self.direction = (0, 1)
         win = self.window
         win.show_path = self.show_path
 
@@ -492,30 +474,17 @@ class Game:
                         self.data[self.username][str(
                             self.wall)]["hs"] = self.score
                         self.record_broken = True
-                    win.apple = win.board.drop_apple()
+                    if win.prize:
+                        self.shrink(times=win.prize)
+                    win.apple, win.prize = win.board.drop_apple()
                 else:
                     # win.board.set(self.snake_body.pop(0), value=0)
-                    win.board.minus(*self.snake_body)
-                    self.snake_body.pop(0)
+                    self.shrink()
                 self.snake_body.append(next_step)
                 win.board.set(next_step, value=len(self.snake_body))
+
                 self.data[self.username][str(self.wall)]["ml"] = max(len(self.snake_body),
                                                                      self.data[self.username][str(self.wall)]["ml"])
-            # if not steps:
-            #     self.game_over()
-            #     break
-            # win.path = steps
-            # if not self.autopilot:
-            #     next_step = (win.board.fix(
-            #         self.snake_body[-1][0]+self.direction[0]), win.board.fix(self.snake_body[-1][1]+self.direction[1]))
-            #     if win.board.is_blocked(next_step, distance=1):
-            #         self.game_over()
-            #         break
-            # else:
-            #     next_step = steps.pop()
-
-            # scr.add_window(win)
-            # print(self.direction)
 
         return 1
 
