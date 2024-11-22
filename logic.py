@@ -473,8 +473,9 @@ class Game:
 
         win = self.window
         win.show_path = self.show_path
-        statics = Window(size=[20, 14], pos=("m", "m"))
+        statics = Window(size=[20, 17], pos=("m", "m"))
         self.stat = statics
+        statics.main = False
         statics.set_header(title="Leaderboard")
         top = self.leaders()
 
@@ -486,6 +487,7 @@ class Game:
             statics.add_text(text="User", pos=["l", 1], format=format["dim"])
             statics.add_text(text="Best", pos=["r", 1], format=format["dim"])
             statics.add_text(text="├"+"─"*statics.size[0]+"┤", pos=["m", 6])
+            statics.add_text(text="├"+"─"*statics.size[0]+"┤", pos=["m", 13])
             top.sort(key=lambda a: 1/(a[1]+1))
             rank = 1
             for user, best in top:
@@ -508,6 +510,27 @@ class Game:
                 statics.add_text(text=str(apple_prizes[i][0]), pos=[12, 7+i])
                 statics.add_text(
                     text=str(1-apple_prizes[i][1]), pos=["r", 7+i])
+            statics.add_text(text=toggle[self.autopilot], pos=["nr", 14], format=format["bold"] +
+                             format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
+            statics.add_text(text=toggle[self.show_path], pos=["nr", 15], format=format["bold"] +
+                             format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
+            statics.add_text(text=toggle[self.obstacle], pos=["nr", 16], format=format["bold"] +
+                             format["fore"]["green"] if self.obstacle else format["bold"]+format["fore"]["red"])
+            statics.add_text(text=intensity[self.step_time], pos=[
+                "nr", 17], format=format["bold"] + format["fore"]["blue"])
+            statics.add_text(text="AutoPilot", pos=["l", 14])
+            statics.add_text(text="ShowPath", pos=["l", 15])
+            statics.add_text(text="Obstacles", pos=["l", 16])
+            statics.add_text(text="Speed", pos=["l", 17])
+            statics.add_text(
+                text="a", pos=["r", 14], format=format["underlined"])
+            statics.add_text(
+                text="p", pos=["r", 15], format=format["underlined"])
+            statics.add_text(
+                text="o", pos=["r", 16], format=format["underlined"])
+            statics.add_text(
+                text="s", pos=["r", 17], format=format["underlined"])
+
             scr.add_window(statics)
             win.set_header(title=str(self.score))
             win.set_pos(("m", "m"))
