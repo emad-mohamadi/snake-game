@@ -477,7 +477,7 @@ class Game:
     def drop_food(self, head=None):
         while len(self.window.apples) < self.foods:
             new_apple = self.window.board.drop_apple()
-            if new_apple[0] not in [apple[0] for apple in self.window.apples]+[head]:
+            if new_apple[0] not in [apple[0] for apple in self.window.apples]+[head] and len(self.window.board.neighbors(new_apple[0])) >= 2:
                 self.window.apples.append(new_apple)
         return
 
@@ -620,8 +620,8 @@ class Game:
                         self.record_broken = True
                     self.shrink(times=apple_prizes[win.apples[i][1]][1])
                     win.apples.pop(i)
-                    self.drop_food(head=next_step)
                     self.make_obstacle(head=next_step)
+                    self.drop_food(head=next_step)
                 else:
                     # win.board.set(self.snake_body.pop(0), value=0)
                     self.shrink()
