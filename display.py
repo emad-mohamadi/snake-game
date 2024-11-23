@@ -71,11 +71,11 @@ format = {
 }
 
 apple_colors = {
-    1: format["fore"]["red"],
-    2: format["fore"]["purple"],
-    3: format["fore"]["teal"],
-    4: format["fore"]["red"],
-    5: format["fore"]["purple"],
+    1: format["fore"]["yellow"],
+    2: format["fore"]["red"],
+    3: format["fore"]["purple"],
+    4: format["fore"]["green"],
+    5: format["fore"]["teal"],
 }
 
 theme = {

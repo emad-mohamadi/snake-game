@@ -411,7 +411,8 @@ class Game:
         score_list.sort(key=lambda a: a[1])
         top = score_list[-4:]
         if (self.username, self.data[self.username][str(self.wall)]["hs"]) not in top:
-            top[0] = (self.username, self.high_score)
+            top[0] = (self.username, self.data[self.username]
+                      [str(self.wall)]["hs"])
         return top[::-1]
 
     def start(self):
@@ -454,6 +455,7 @@ class Game:
         if self.obstacle and choice([0, 0, 0, 1]):
             loc = self.window.board.drop_apple()[0]
             if loc in self.window.board.neighbors(head, distance=-1)+[self.window.apple]:
+                # self.window.board.set(self.obstacles.pop(0), value=0)
                 return
             self.window.board.set(loc, value=-1)
             self.obstacles.append(loc)
