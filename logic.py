@@ -10,7 +10,7 @@ class Game:
     username = None
     record_broken = False
     obstacle = False
-    foods = 3
+    foods = 1
 
     def __init__(self, size=16, wall=False, autopilot=False, show_path=True, step_time=15, data_path="data.json"):
         self.size = size
@@ -174,7 +174,7 @@ class Game:
 
     def main_menu(self):
         screen = Screen()
-        win = Window(size=[25, 11])
+        win = Window(size=[25, 13])
         win.set_header(title="Menu")
         win.set_border(*borders["rounded"])
 
@@ -184,47 +184,54 @@ class Game:
         add_hotkey("s", self.press_key, args=["s"], suppress=True)
         add_hotkey("a", self.press_key, args=["a"], suppress=True)
         add_hotkey("p", self.press_key, args=["p"], suppress=True)
+        add_hotkey("f", self.press_key, args=["f"], suppress=True)
         add_hotkey("enter", self.press_key, args=["enter"], suppress=True)
         add_hotkey("esc", self.press_key, args=["esc"], suppress=True)
         add_hotkey("backspace", self.press_key, args=["bs"], suppress=True)
         while True:
             win.text = []
             # if saved:
-            win.add_text(text="Wall", pos=["l", 2])
-            win.add_text(text="Obstacles", pos=["l", 3])
-            win.add_text(text="Size", pos=["l", 4])
-            win.add_text(text="Speed", pos=["l", 5])
-            win.add_text(text="AutoPilot", pos=["l", 6])
-            win.add_text(text="ShowPath", pos=["l", 7])
-            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 8])
-            win.add_text(text="Start", pos=["l", 9])
-            win.add_text(text="Logout", pos=["l", 10])
-            win.add_text(text="Exit", pos=["l", 11])
+            win.add_text(text="User", pos=["l", 1], format=format["italic"])
+            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 2])
+            win.add_text(text="Wall", pos=["l", 3])
+            win.add_text(text="Obstacles", pos=["l", 4])
+            win.add_text(text="Foods", pos=["l", 5])
+            win.add_text(text="Size", pos=["l", 6])
+            win.add_text(text="Speed", pos=["l", 7])
+            win.add_text(text="AutoPilot", pos=["l", 8])
+            win.add_text(text="ShowPath", pos=["l", 9])
+            win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 10])
+            win.add_text(text="Start", pos=["l", 11])
+            win.add_text(text="Logout", pos=["l", 12])
+            win.add_text(text="Exit", pos=["l", 13])
 
-            win.add_text(text=toggle[self.wall], pos=["nr", 2], format=format["bold"] +
+            win.add_text(text=self.username, pos=["r", 1], format=format["italic"])
+            win.add_text(text=toggle[self.wall], pos=["nr", 3], format=format["bold"] +
                          format["fore"]["green"] if self.wall else format["bold"]+format["fore"]["red"])
-            win.add_text(text=toggle[self.obstacle], pos=["nr", 3], format=format["bold"] +
+            win.add_text(text=toggle[self.obstacle], pos=["nr", 4], format=format["bold"] +
                          format["fore"]["green"] if self.obstacle else format["bold"]+format["fore"]["red"])
+            win.add_text(text=self.foods*"◉", pos=["nr", 5], format=format["fore"]["red"])
             win.add_text(text=intensity[self.size], pos=[
-                         "nr", 4], format=format["bold"]+format["fore"]["blue"])
+                         "nr", 6], format=format["bold"]+format["fore"]["blue"])
             win.add_text(text=intensity[self.step_time], pos=[
-                         "nr", 5], format=format["bold"]+format["fore"]["blue"])
-            win.add_text(text=toggle[self.autopilot], pos=["nr", 6], format=format["bold"] +
+                         "nr", 7], format=format["bold"]+format["fore"]["blue"])
+            win.add_text(text=toggle[self.autopilot], pos=["nr", 8], format=format["bold"] +
                          format["fore"]["green"] if self.autopilot else format["bold"]+format["fore"]["red"])
-            win.add_text(text=toggle[self.show_path], pos=["nr", 7], format=format["bold"] +
+            win.add_text(text=toggle[self.show_path], pos=["nr", 9], format=format["bold"] +
                          format["fore"]["green"] if self.show_path else format["bold"]+format["fore"]["red"])
 
-            win.add_text(text="w", pos=["r", 2], format=format["underlined"])
-            win.add_text(text="o", pos=["r", 3], format=format["underlined"])
-            win.add_text(text="l", pos=["r", 4], format=format["underlined"])
-            win.add_text(text="s", pos=["r", 5], format=format["underlined"])
-            win.add_text(text="a", pos=["r", 6], format=format["underlined"])
-            win.add_text(text="p", pos=["r", 7], format=format["underlined"])
+            win.add_text(text="w", pos=["r", 3], format=format["underlined"])
+            win.add_text(text="o", pos=["r", 4], format=format["underlined"])
+            win.add_text(text="f", pos=["r", 5], format=format["underlined"])
+            win.add_text(text="l", pos=["r", 6], format=format["underlined"])
+            win.add_text(text="s", pos=["r", 7], format=format["underlined"])
+            win.add_text(text="a", pos=["r", 8], format=format["underlined"])
+            win.add_text(text="p", pos=["r", 9], format=format["underlined"])
             win.add_text(text="ENTER", pos=[
-                         "r", 9], format=format["underlined"])
+                         "r", 11], format=format["underlined"])
             win.add_text(text="backspace", pos=[
-                         "r", 10], format=format["underlined"])
-            win.add_text(text="esc", pos=["r", 11],
+                         "r", 12], format=format["underlined"])
+            win.add_text(text="esc", pos=["r", 13],
                          format=format["underlined"])
 
             screen.add_window(win)
@@ -246,6 +253,9 @@ class Game:
                     self.pressed_key = None
                 case "o":
                     self.obstacle = not self.obstacle
+                    self.pressed_key = None
+                case "f":
+                    self.foods += 1 if self.foods is not 3 else -2
                     self.pressed_key = None
                 case "enter":
                     self.pressed_key = None
@@ -467,7 +477,7 @@ class Game:
     def drop_food(self, head=None):
         while len(self.window.apples) < self.foods:
             new_apple = self.window.board.drop_apple()
-            if new_apple[0] not in [apple[0] for apple in self.window.apples]+[head]:
+            if new_apple[0] not in [apple[0] for apple in self.window.apples]+[head] and len(self.window.board.neighbors(new_apple[0])) >= 2:
                 self.window.apples.append(new_apple)
         return
 
@@ -610,8 +620,8 @@ class Game:
                         self.record_broken = True
                     self.shrink(times=apple_prizes[win.apples[i][1]][1])
                     win.apples.pop(i)
-                    self.drop_food(head=next_step)
                     self.make_obstacle(head=next_step)
+                    self.drop_food(head=next_step)
                 else:
                     # win.board.set(self.snake_body.pop(0), value=0)
                     self.shrink()
