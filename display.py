@@ -16,8 +16,8 @@ apple_prizes = {
 }
 
 apple_shapes = {
-    1: ["▗", "▖"],
-    2: ["◀", "▶"]
+    1: ["▗", "▖", "⏹"],
+    2: ["◀", "▶", "◀▶"]
 }
 
 intensity = {
@@ -35,12 +35,6 @@ borders = {
     "double-line": ["║", "═", ("╔", "╗", "╚", "╝")],
     "rounded": ["│", "─", ("╭", "╮", "╰", "╯")],
     "dotted": ["╎", "╴", ("╭", "╮", "╰", "╯")]
-}
-
-colors = {
-    "snake": "blue",
-    "border": "gray",
-    "apple": ("red", "green", "purple", "yellow")
 }
 
 palette = ("red", "green", "yellow", "blue", "purple")
@@ -71,11 +65,11 @@ format = {
 }
 
 apple_colors = {
-    1: format["fore"]["yellow"],
-    2: format["fore"]["red"],
-    3: format["fore"]["purple"],
-    4: format["fore"]["green"],
-    5: format["fore"]["teal"],
+    1: format["fore"]["yellow"]+format["bold"],
+    2: format["fore"]["red"]+format["bold"],
+    3: format["fore"]["purple"]+format["bold"],
+    4: format["fore"]["green"]+format["bold"],
+    5: format["fore"]["teal"]+format["bold"],
 }
 
 theme = {

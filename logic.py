@@ -521,7 +521,7 @@ class Game:
             statics.add_text(text="growth", pos=["r", 7], format=format["dim"])
             for i in range(1, 6):
                 statics.add_text(
-                    text=apple_shapes[apple_prizes[i][2]][0]+apple_shapes[apple_prizes[i][2]][1], pos=["l", 7+i], format=apple_colors[i]
+                    text=apple_shapes[apple_prizes[i][2]][2], pos=["l", 7+i], format=apple_colors[i]
                 )
                 statics.add_text(text=str(apple_prizes[i][0]), pos=[12, 7+i])
                 statics.add_text(
