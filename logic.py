@@ -10,7 +10,7 @@ class Game:
     username = None
     record_broken = False
     obstacle = False
-    foods = 3
+    foods = 1
 
     def __init__(self, size=16, wall=False, autopilot=False, show_path=True, step_time=15, data_path="data.json"):
         self.size = size
@@ -210,8 +210,7 @@ class Game:
                          format["fore"]["green"] if self.wall else format["bold"]+format["fore"]["red"])
             win.add_text(text=toggle[self.obstacle], pos=["nr", 4], format=format["bold"] +
                          format["fore"]["green"] if self.obstacle else format["bold"]+format["fore"]["red"])
-            win.add_text(text=self.foods*"◉", pos=["nr", 5], format=format["bold"] +
-                         format["fore"]["red"])
+            win.add_text(text=self.foods*"◉", pos=["nr", 5], format=format["fore"]["red"])
             win.add_text(text=intensity[self.size], pos=[
                          "nr", 6], format=format["bold"]+format["fore"]["blue"])
             win.add_text(text=intensity[self.step_time], pos=[
