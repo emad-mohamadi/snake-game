@@ -10,6 +10,7 @@ class Game:
     username = None
     record_broken = False
     obstacle = False
+    foods = 3
 
     def __init__(self, size=16, wall=False, autopilot=False, show_path=True, step_time=15, data_path="data.json"):
         self.size = size
@@ -411,7 +412,8 @@ class Game:
         score_list.sort(key=lambda a: a[1])
         top = score_list[-4:]
         if (self.username, self.data[self.username][str(self.wall)]["hs"]) not in top:
-            top[0] = (self.username, self.high_score)
+            top[0] = (self.username, self.data[self.username]
+                      [str(self.wall)]["hs"])
         return top[::-1]
 
     def start(self):
@@ -421,6 +423,7 @@ class Game:
         if self.wall:
             game_size += 2
         win = Window((game_size*2, game_size))
+        self.window = win
         win.show_path = self.show_path
         win.set_board(game_size)
         if self.wall:
@@ -437,9 +440,10 @@ class Game:
         win.board.set(self.snake_body[1], value=2)
         win.board.set(self.snake_body[2], value=3)
 
-        win.apple, win.apple_code = win.board.drop_apple()
+        win.apples = []
+        self.drop_food()
+        self.obstacles = []
 
-        self.window = win
         return self.run()
 
     def shrink(self, times=1):
@@ -449,9 +453,22 @@ class Game:
                 self.snake_body.pop(0)
         return
 
-    def make_obstacle(self):
+    def make_obstacle(self, head):
         if self.obstacle and choice([0, 0, 0, 1]):
-            self.window.board.set(self.window.board.drop_apple()[0], value=-1)
+            loc = self.window.board.drop_apple()[0]
+            if loc in self.window.board.neighbors(head, distance=-1)+[a[0] for a in self.window.apples]:
+                return
+            self.window.board.set(loc, value=-1)
+            self.obstacles.append(loc)
+            if len(self.obstacles) == (self.size**2//20):
+                self.window.board.set(self.obstacles.pop(0), value=0)
+        return
+
+    def drop_food(self, head=None):
+        while len(self.window.apples) < self.foods:
+            new_apple = self.window.board.drop_apple()
+            if new_apple[0] not in [apple[0] for apple in self.window.apples]+[head]:
+                self.window.apples.append(new_apple)
         return
 
     def run(self):
@@ -462,14 +479,13 @@ class Game:
         add_hotkey("p", self.press_key, args=["p"], suppress=True)
         add_hotkey("s", self.press_key, args=["s"], suppress=True)
         add_hotkey("o", self.press_key, args=["o"], suppress=True)
-        if not self.autopilot:
-            add_hotkey("up", self.set_direction, args=["up"], suppress=True)
-            add_hotkey("down", self.set_direction,
-                       args=["down"], suppress=True)
-            add_hotkey("right", self.set_direction,
-                       args=["right"], suppress=True)
-            add_hotkey("left", self.set_direction,
-                       args=["left"], suppress=True)
+        add_hotkey("up", self.set_direction, args=["up"], suppress=True)
+        add_hotkey("down", self.set_direction,
+                   args=["down"], suppress=True)
+        add_hotkey("right", self.set_direction,
+                   args=["right"], suppress=True)
+        add_hotkey("left", self.set_direction,
+                   args=["left"], suppress=True)
 
         win = self.window
         win.show_path = self.show_path
@@ -505,7 +521,7 @@ class Game:
             statics.add_text(text="growth", pos=["r", 7], format=format["dim"])
             for i in range(1, 6):
                 statics.add_text(
-                    text=apple_shapes[apple_prizes[i][0]][0]+apple_shapes[apple_prizes[i][0]][1], pos=["l", 7+i], format=apple_colors[i]
+                    text=apple_shapes[apple_prizes[i][2]][0]+apple_shapes[apple_prizes[i][2]][1], pos=["l", 7+i], format=apple_colors[i]
                 )
                 statics.add_text(text=str(apple_prizes[i][0]), pos=[12, 7+i])
                 statics.add_text(
@@ -558,7 +574,8 @@ class Game:
             if self.autopilot:
                 sleep(self.step_time/100)
                 if not win.paused:
-                    steps = win.board.find_path(self.snake_body[-1], win.apple)
+                    steps = win.board.find_path(
+                        self.snake_body[-1], [a[0] for a in win.apples])
                     if not steps:
                         self.game_over()
                         break
@@ -567,7 +584,8 @@ class Game:
                 scr.add_window(win)
                 scr.show()
             else:
-                win.path = win.board.find_path(self.snake_body[-1], win.apple)
+                win.path = win.board.find_path(
+                    self.snake_body[-1], [a[0] for a in win.apples])
                 scr.add_window(win)
                 scr.show()
                 sleep(self.step_time/100)
@@ -579,15 +597,21 @@ class Game:
                         break
 
             if not win.paused:
-                if next_step == win.apple:
-                    self.score += apple_prizes[win.apple_code][0]
+                if next_step in [a[0] for a in win.apples]:
+                    i = 0
+                    while i < self.foods:
+                        if win.apples[i][0] == next_step:
+                            break
+                        i += 1
+                    self.score += apple_prizes[win.apples[i][1]][0]
                     if self.data[self.username][str(self.wall)]["hs"] < self.score:
                         self.data[self.username][str(
                             self.wall)]["hs"] = self.score
                         self.record_broken = True
-                    self.shrink(times=apple_prizes[win.apple_code][1])
-                    win.apple, win.apple_code = win.board.drop_apple()
-                    self.make_obstacle()
+                    self.shrink(times=apple_prizes[win.apples[i][1]][1])
+                    win.apples.pop(i)
+                    self.drop_food(head=next_step)
+                    self.make_obstacle(head=next_step)
                 else:
                     # win.board.set(self.snake_body.pop(0), value=0)
                     self.shrink()
@@ -599,8 +623,3 @@ class Game:
             scr.clear()
 
         return 1
-
-
-# snake = Game(step_time=0.1)
-# # snake.run()
-# snake.menu()

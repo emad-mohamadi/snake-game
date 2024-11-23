@@ -11,7 +11,7 @@ class Board:
         new_apple = (randint(0, self.size-1), randint(0, self.size-1))
         while self.is_blocked(new_apple, distance=0):
             new_apple = (randint(0, self.size-1), randint(0, self.size-1))
-        return new_apple, choices([1, 2, 3, 4, 5], weights=[0.80, 0.04, 0.02, 0.1, 0.04], k=1)[0]
+        return new_apple, choices([1, 2, 3, 4, 5], weights=[0.26, 0.25, 0.25, 0.12, 0.12], k=1)[0]
 
     def set(self, *positions, value=-1):
         for position in positions:
@@ -49,7 +49,14 @@ class Board:
                      (pos[0], self.fix(pos[1]+1)), (pos[0], self.fix(pos[1]-1))]
         return [position for position in positions if not (self.is_blocked(position, distance) or visited.is_blocked(position))]
 
-    def find_path(self, start, target):
+    def find_path(self, start, targets):
+        paths = [self.dijkstra(start, target) for target in targets]
+        paths = [path for path in paths if path]
+        if not paths:
+            return self.alternative_path(start)
+        return min(paths, key=lambda a: len(a))
+
+    def dijkstra(self, start, target):
         path = {}
         queue = Heap()
         visited = Board(self.size)
@@ -65,7 +72,7 @@ class Board:
 
             if pos == target:
                 if self.neighbors(target, distance=distance) == [path[target]] or not self.neighbors(target, distance=distance):
-                    return self.alternative_path(start)
+                    return []
                 # print(self.neighbors(target, distance=distance))
                 break
             if visited.is_blocked(pos):
@@ -84,7 +91,7 @@ class Board:
                 steps.append(step)
             return steps
         except KeyError:
-            return self.alternative_path(start)
+            return []
 
     def alternative_path(self, start):
         possible_moves = self.neighbors(start, distance=1)
@@ -126,7 +133,7 @@ class Board:
 
         if priority:
             return [item[0] for item in priority]
-        return None
+        return []
 
 
 class Heap:
@@ -142,23 +149,3 @@ class Heap:
 
     def pop(self):
         return self.data.pop(0)
-
-
-# board = Board(20)
-# board.set(*[(8, i) for i in range(17)], value=1)
-# board.set(*[(16, i) for i in range(5, 20)], value=1)
-# board.set(*[(0, i) for i in range(20)], value=1)
-# board.set(*[(i, 0) for i in range(20)], value=1)
-# board.set(*[(20-1, i) for i in range(20)], value=1)
-# board.set(*[(i, 20-1) for i in range(20)], value=1)
-# board.set(*board.find_path((1, 1), (18, 18)))
-
-# game_size = 15
-# board = Board(game_size)
-# board.set(*[(0, i) for i in range(game_size)])
-# board.set(*[(i, 0) for i in range(game_size)])
-# board.set(*[(game_size-1, i) for i in range(game_size)])
-# board.set(*[(i, game_size-1) for i in range(game_size)])
-
-# print(board.alternative_path((13, 12)).pop())
-# print(board)

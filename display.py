@@ -8,11 +8,11 @@ toggle = ["☐", "☑"]
 
 
 apple_prizes = {
-    1: (1, 0),
-    2: (1, 1),
-    3: (1, 2),
-    4: (2, 0),
-    5: (2, 1)
+    1: (1, 0, 1),
+    2: (2, 0, 1),
+    3: (3, 0, 1),
+    4: (1, 2, 2),
+    5: (2, 2, 2)
 }
 
 apple_shapes = {
@@ -71,11 +71,11 @@ format = {
 }
 
 apple_colors = {
-    1: format["fore"]["red"],
-    2: format["fore"]["purple"],
-    3: format["fore"]["teal"],
-    4: format["fore"]["red"],
-    5: format["fore"]["purple"],
+    1: format["fore"]["yellow"],
+    2: format["fore"]["red"],
+    3: format["fore"]["purple"],
+    4: format["fore"]["green"],
+    5: format["fore"]["teal"],
 }
 
 theme = {
@@ -168,11 +168,12 @@ class Screen:
                                                          j*2+1] = window.show_board(0) + self.default
 
             # Apple
-            if window.apple:
-                self.matrix[window.pos[1]+window.apple[0]][window.pos[0] +
-                                                           window.apple[1]*2] = window.show_board(-2, i=0) + self.default
-                self.matrix[window.pos[1]+window.apple[0]][window.pos[0] +
-                                                           window.apple[1]*2+1] = window.show_board(-2, i=1) + self.default
+            if window.apples:
+                for apple, apple_code in window.apples:
+                    self.matrix[window.pos[1]+apple[0]][window.pos[0] +
+                                                        apple[1]*2] = window.show_board(-2, apple_code, i=0) + self.default
+                    self.matrix[window.pos[1]+apple[0]][window.pos[0] +
+                                                        apple[1]*2+1] = window.show_board(-2, apple_code, i=1) + self.default
         except IndexError:
             if window.main:
                 window.paused = True
@@ -192,8 +193,7 @@ class Window:
     show_path = False
     main = True
     board = None
-    apple = None
-    apple_code = None
+    apples = []
     path = None
     text = []
 
@@ -210,7 +210,7 @@ class Window:
         self.board = Board(size)
         return
 
-    def show_board(self, code, i=None):
+    def show_board(self, code, apple_code=None, i=None):
         if code >= 1:
             # return f"\033[38;5;{232+code//3}m█"
             return format["fore"]["blue"] + "█"
@@ -219,7 +219,7 @@ class Window:
         elif code == -1:
             return format["regular"] + "█"
         elif code == -2:
-            return apple_colors[self.apple_code] + apple_shapes[apple_prizes[self.apple_code][0]][i]
+            return apple_colors[apple_code] + apple_shapes[apple_prizes[apple_code][2]][i]
             # return format["fore"][choice(colors["apple"])] + "█"
 
     def set_pos(self, pos):
