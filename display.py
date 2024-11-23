@@ -3,6 +3,7 @@ from time import sleep
 from random import choice, randint
 from math import ceil
 from os import get_terminal_size as console_size
+from keyboard import add_hotkey, remove_all_hotkeys
 
 toggle = ["☐", "☑"]
 
@@ -161,7 +162,7 @@ class Screen:
                             self.matrix[window.pos[1]+i][window.pos[0] +
                                                          j*2+1] = window.show_board(0) + self.default
 
-            # Apple
+            # Apples
             if window.apples:
                 for apple, apple_code in window.apples:
                     self.matrix[window.pos[1]+apple[0]][window.pos[0] +
@@ -293,7 +294,15 @@ def message(message, time, header=None, form=format["regular"], border=borders["
         popup.set_header(title=header, format=form)
     popup.set_border(*border)
 
+    def key_press():
+        popup.paused = True
+        return
+    add_hotkey("enter", key_press)
+
     while time > 0:
+        if popup.paused:
+            remove_all_hotkeys()
+            return
         popup.text = []
         for t in range(len(message)):
             popup.add_text(text=message[t], pos=["m", t+2],
@@ -304,3 +313,5 @@ def message(message, time, header=None, form=format["regular"], border=borders["
         scr.show()
         sleep(0.05)
         time -= 0.05
+    remove_all_hotkeys()
+    return

@@ -2,6 +2,7 @@ from keyboard import add_hotkey, remove_all_hotkeys
 from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity, apple_prizes, apple_shapes, apple_colors
 from json import load, dump
 from random import choice
+# from snakegame import main
 
 
 class Game:
@@ -35,12 +36,14 @@ class Game:
                 return self.pause_menu()
             case 6:
                 return self.run()
+            case 7:
+                pass
 
         return 0
 
     def signin_menu(self):
         screen = Screen()
-        win = Window(size=[18, 6])
+        win = Window(size=[25, 7])
         win.set_header(title="Sign-up")
         win.set_border()
 
@@ -49,6 +52,8 @@ class Game:
                    args=["backspace"], suppress=True)
         add_hotkey("shift+l", self.press_key, args=["L"], suppress=True)
         add_hotkey("esc", self.press_key, args=["Q"], suppress=True)
+        add_hotkey("ctrl+enter", self.press_key,
+                   args=["ctrl+enter"], suppress=True)
         for i in range(97, 123):
             add_hotkey(chr(i), self.press_key, args=[chr(i)], suppress=True)
 
@@ -57,10 +62,16 @@ class Game:
             win.text = []
             win.add_text(text="username:", pos=["m", 2])
             win.add_text(text=typed+"_", pos=["m", 3])
+            win.add_text(text="New Window", pos=["l", 6])
             win.add_text(text="Login", pos=["l", 5])
-            win.add_text(text="Quit", pos=["l", 6])
-            win.add_text(text="L", pos=["r", 5], format=format["underlined"])
-            win.add_text(text="esc", pos=["r", 6], format=format["underlined"])
+            win.add_text(text="Quit", pos=["l", 7])
+
+            win.add_text(text="ctrl+enter", pos=["r", 6],
+                         format=format["underlined"]+format["dim"])
+            win.add_text(text="L", pos=["r", 5],
+                         format=format["underlined"]+format["dim"])
+            win.add_text(text="esc", pos=["r", 7],
+                         format=format["underlined"]+format["dim"])
             screen.add_window(win)
             screen.show()
             match self.pressed_key:
@@ -77,19 +88,26 @@ class Game:
                             self.save_data()
                             message([f"welcome {typed}"], 1.5,
                                     form=format["fore"]["green"])
+                            self.pressed_key = None
                             code = 1
                         else:
                             message(
                                 [f"username is too short"], 2.5, form=format["fore"]["red"])
+                            self.pressed_key = None
                             code = 4
                     else:
                         message(
                             [f"username '{typed}' already exists"], 2.5, form=format["fore"]["red"])
+                        self.pressed_key = None
                         code = 4
                     break
                 case "L":
                     self.pressed_key = None
                     code = 3
+                    break
+                case "ctrl+enter":
+                    self.pressed_key = None
+                    code = 7
                     break
                 case "Q":
                     self.pressed_key = None
@@ -99,7 +117,7 @@ class Game:
                     self.pressed_key = None
                     typed = typed[:-1]
                 case _:
-                    if self.pressed_key and len(typed) < 10:
+                    if self.pressed_key and len(typed) < 15:
                         typed += self.pressed_key
                         self.pressed_key = None
 
@@ -112,7 +130,7 @@ class Game:
 
     def login_menu(self):
         screen = Screen()
-        win = Window(size=[18, 6])
+        win = Window(size=[25, 7])
         win.set_header(title="Login")
         win.set_border()
 
@@ -121,6 +139,8 @@ class Game:
                    args=["backspace"], suppress=True)
         add_hotkey("shift+s", self.press_key, args=["S"], suppress=True)
         add_hotkey("esc", self.press_key, args=["Q"], suppress=True)
+        add_hotkey("ctrl+enter", self.press_key,
+                   args=["ctrl+enter"], suppress=True)
         for i in range(97, 123):
             add_hotkey(chr(i), self.press_key, args=[chr(i)], suppress=True)
 
@@ -129,10 +149,16 @@ class Game:
             win.text = []
             win.add_text(text="username:", pos=["m", 2])
             win.add_text(text=typed+"_", pos=["m", 3])
-            win.add_text(text="Sign up", pos=["l", 5])
-            win.add_text(text="Quit", pos=["l", 6])
-            win.add_text(text="S", pos=["r", 5], format=format["underlined"])
-            win.add_text(text="esc", pos=["r", 6], format=format["underlined"])
+            win.add_text(text="New Window", pos=["l", 6])
+            win.add_text(text="Sign-up", pos=["l", 5])
+            win.add_text(text="Quit", pos=["l", 7])
+
+            win.add_text(text="ctrl+enter", pos=["r", 6],
+                         format=format["underlined"]+format["dim"])
+            win.add_text(text="S", pos=["r", 5],
+                         format=format["underlined"]+format["dim"])
+            win.add_text(text="esc", pos=["r", 7],
+                         format=format["underlined"]+format["dim"])
             screen.add_window(win)
             match self.pressed_key:
                 case "enter":
@@ -142,10 +168,12 @@ class Game:
                         self.username = typed
                         message([f"welcome {typed}"], 1.5,
                                 form=format["fore"]["green"])
+                        self.pressed_key = None
                         code = 1
                     else:
                         message(
                             [f"username '{typed}' not found"], 2.5, form=format["fore"]["red"])
+                        self.pressed_key = None
                         code = 3
                     break
                 case "S":
@@ -156,11 +184,15 @@ class Game:
                     self.pressed_key = None
                     code = 0
                     break
+                case "ctrl+enter":
+                    self.pressed_key = None
+                    code = 7
+                    break
                 case "backspace":
                     self.pressed_key = None
                     typed = typed[:-1]
                 case _:
-                    if self.pressed_key and len(typed) < 10:
+                    if self.pressed_key and len(typed) < 15:
                         typed += self.pressed_key
                         self.pressed_key = None
 
@@ -190,8 +222,8 @@ class Game:
         add_hotkey("backspace", self.press_key, args=["bs"], suppress=True)
         while True:
             win.text = []
-            # if saved:
-            win.add_text(text="User", pos=["l", 1], format=format["italic"])
+            win.add_text(text="User", pos=["l", 1],
+                         format=format["italic"]+format["dim"])
             win.add_text(text="├"+"─"*win.size[0]+"┤", pos=["m", 2])
             win.add_text(text="Wall", pos=["l", 3])
             win.add_text(text="Obstacles", pos=["l", 4])
@@ -205,12 +237,14 @@ class Game:
             win.add_text(text="Logout", pos=["l", 12])
             win.add_text(text="Exit", pos=["l", 13])
 
-            win.add_text(text=self.username, pos=["r", 1], format=format["italic"])
+            win.add_text(text=self.username, pos=[
+                         "r", 1], format=format["italic"]+format["dim"])
             win.add_text(text=toggle[self.wall], pos=["nr", 3], format=format["bold"] +
                          format["fore"]["green"] if self.wall else format["bold"]+format["fore"]["red"])
             win.add_text(text=toggle[self.obstacle], pos=["nr", 4], format=format["bold"] +
                          format["fore"]["green"] if self.obstacle else format["bold"]+format["fore"]["red"])
-            win.add_text(text=self.foods*"◉", pos=["nr", 5], format=format["fore"]["red"])
+            win.add_text(text=self.foods*"◉",
+                         pos=["nr", 5], format=format["fore"]["red"])
             win.add_text(text=intensity[self.size], pos=[
                          "nr", 6], format=format["bold"]+format["fore"]["blue"])
             win.add_text(text=intensity[self.step_time], pos=[
@@ -293,7 +327,6 @@ class Game:
         add_hotkey("s", self.press_key, args=["s"], suppress=True)
         add_hotkey("p", self.press_key, args=["p"], suppress=True)
         add_hotkey("o", self.press_key, args=["o"], suppress=True)
-        # self.save_game()
 
         while True:
             win.text = []
@@ -316,7 +349,7 @@ class Game:
             win.add_text(text=intensity[self.step_time], pos=[
                          "nr", 5], format=format["bold"] + format["fore"]["blue"])
 
-            win.add_text(text="Enter", pos=[
+            win.add_text(text="enter", pos=[
                          "r", 7], format=format["underlined"])
             win.add_text(text="n", pos=["r", 8], format=format["underlined"])
             win.add_text(text="backspace", pos=[
@@ -413,6 +446,7 @@ class Game:
         message_text = ["", phrase, "", str(self.score)]
         message(message_text, header=" Game Over ",
                 time=3.0, form=format["fore"]["red"]+format["bold"], border=borders["rounded"])
+        self.pressed_key = None
         self.save_data()
         return
 
@@ -623,7 +657,6 @@ class Game:
                     self.make_obstacle(head=next_step)
                     self.drop_food(head=next_step)
                 else:
-                    # win.board.set(self.snake_body.pop(0), value=0)
                     self.shrink()
                 self.snake_body.append(next_step)
                 win.board.set(next_step, value=len(self.snake_body))
