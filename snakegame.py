@@ -210,11 +210,11 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    sys.exit()
+                    return
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         pygame.quit()
-                        sys.exit()
+                        return
                     elif event.key == pygame.K_p:
                         paused = not paused
                     elif event.key == pygame.K_s:
@@ -236,7 +236,7 @@ class Game:
                 if self.snake.snake_pos[0] == self.food.position:
                     self.food.position = self.food.handle_collision(
                         self.snake.snake_pos, self.blocks)
-                    self.score += 10
+                    self.score += 1
                     if self.score > self.high_score:
                         self.high_score = self.score
                 else:
@@ -330,9 +330,9 @@ class Food:
     def handle_collision(self, snake_pos, blocks):
         global score
         if self.position == self.generate_poison_food_position(snake_pos, config['game_area']['base_width'], config['game_area']['base_height'], config['game_area']['cell_size']):
-            score -= 10  # Decrease score for poison food
+            score -= 1  # Decrease score for poison food
         else:
-            score += 10  # Increase score for normal food
+            score += 1  # Increase score for normal food
             if config['game_modes']['blocks']:
                 block = self.generate_blocks(snake_pos)
                 if block:
@@ -447,7 +447,7 @@ def login():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     game_options(username)
@@ -478,7 +478,7 @@ def sign_up():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     game_options(username)
@@ -508,7 +508,7 @@ def loading_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                return
 
         next_pos = [load_snake_pos[0][0] + load_direction[0]
                     * cell_size, load_snake_pos[0][1]]
@@ -590,7 +590,7 @@ def game_options(username):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     game = Game(username)
@@ -632,7 +632,7 @@ def view_high_scores(username):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_m and pygame.key.get_mods() & pygame.KMOD_ALT:
                     high_scores_active = False
@@ -657,7 +657,7 @@ def main_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     login()
@@ -668,7 +668,7 @@ def main_menu():
                     game_options(username)
                 if event.key == pygame.K_4:
                     pygame.quit()
-                    sys.exit()
+                    return
 
 
 def draw_text(text, font, color, surface, x, y):

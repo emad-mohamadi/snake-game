@@ -2,7 +2,7 @@ from keyboard import add_hotkey, remove_all_hotkeys
 from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity, apple_prizes, apple_shapes, apple_colors
 from json import load, dump
 from random import choice
-# from snakegameold import main_game
+import sys
 
 
 class Game:
@@ -38,6 +38,8 @@ class Game:
                 return self.run()
             case 7:
                 import snakegame
+                del sys.modules["snakegame"]
+                return 3
 
         return 0
 
