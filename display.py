@@ -264,21 +264,21 @@ def welcome(name="snake"):
     new = [""] * l
     remaining = l
     progress = 0.0
-    while progress < 10 or remaining > 0:
+    while progress < 12 or remaining > 0:
         if remaining > 0:
             remaining = 0
             for i in range(l):
                 if new[i] != name[i]:
                     remaining += 1
                     new[i] = chr(randint(97, 122))
-        if progress < 10:
+        if progress < 12:
             progress += 0.2
         welcome.text = []
         welcome.add_text(text="  ".join(new), pos=["m", 1],
                          format=format["fore"]["blue"])
-        welcome.add_text(text="━"*(10+l), pos=[1, 2])
+        welcome.add_text(text="━"*(12+l), pos=[0, 2])
         welcome.add_text(text="━"*(l-remaining+int(progress)),
-                         pos=[1, 2], format=format["fore"]["red"])
+                         pos=[0, 2], format=format["fore"]["red"])
         welcome.set_pos(pos=("m", "m"))
         scr.clear()
         scr.add_window(welcome)
