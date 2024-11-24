@@ -210,11 +210,11 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    return
+                    sys.exit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         pygame.quit()
-                        return
+                        sys.exit()
                     elif event.key == pygame.K_p:
                         paused = not paused
                     elif event.key == pygame.K_s:
@@ -447,7 +447,7 @@ def login():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     game_options(username)
@@ -478,7 +478,7 @@ def sign_up():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     game_options(username)
@@ -508,7 +508,7 @@ def loading_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return
+                sys.exit()
 
         next_pos = [load_snake_pos[0][0] + load_direction[0]
                     * cell_size, load_snake_pos[0][1]]
@@ -590,7 +590,7 @@ def game_options(username):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     game = Game(username)
@@ -632,7 +632,7 @@ def view_high_scores(username):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_m and pygame.key.get_mods() & pygame.KMOD_ALT:
                     high_scores_active = False
@@ -657,7 +657,7 @@ def main_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     login()
@@ -668,7 +668,7 @@ def main_menu():
                     game_options(username)
                 if event.key == pygame.K_4:
                     pygame.quit()
-                    return
+                    sys.exit()
 
 
 def draw_text(text, font, color, surface, x, y):
