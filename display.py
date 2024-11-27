@@ -95,8 +95,8 @@ class Screen:
         stdout += "\n".join(["".join(row) for row in self.matrix])
         return stdout
 
-    def show(self):
-        print(self, end="")
+    def show(self, end=""):
+        print(self, end=end)
         return
 
     def add_window(self, window):
