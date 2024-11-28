@@ -50,13 +50,12 @@ class Board:
         return [position for position in positions if not (self.is_blocked(position, distance) or visited.is_blocked(position))]
 
     def find_path(self, start, targets):
-        paths = [self.dijkstra(start, target) for target in targets]
-        paths = [path for path in paths if path]
-        if not paths:
+        path = self.dijkstra(start, targets)
+        if not path:
             return self.alternative_path(start)
-        return min(paths, key=lambda a: len(a))
+        return path
 
-    def dijkstra(self, start, target):
+    def dijkstra(self, start, targets):
         path = {}
         queue = Heap()
         visited = Board(self.size)
@@ -67,11 +66,12 @@ class Board:
             queue.push((neighbor, 1))
             path[neighbor] = start
         visited.set(start)
+        pos = None
         while queue.data:
             pos, distance = queue.pop()
 
-            if pos == target:
-                if self.neighbors(target, distance=distance) == [path[target]] or not self.neighbors(target, distance=distance):
+            if pos in targets:
+                if self.neighbors(pos, distance=distance) == [path[pos]] or not self.neighbors(pos, distance=distance):
                     return []
                 # print(self.neighbors(target, distance=distance))
                 break
@@ -84,12 +84,15 @@ class Board:
                 path[neighbor] = pos
 
         try:
-            step = target
-            steps = [step]
-            while path[step] != start:
-                step = path[step]
-                steps.append(step)
-            return steps
+            if pos in targets:
+                step = pos
+                steps = [step]
+                while path[step] != start:
+                    step = path[step]
+                    steps.append(step)
+                return steps
+            else:
+                return []
         except KeyError:
             return []
 

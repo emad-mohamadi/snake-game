@@ -123,7 +123,7 @@ class Game:
                         typed += self.pressed_key
                         self.pressed_key = None
 
-            sleep(self.step_time/100)
+            sleep(screen.refresh_period)
             screen.clear()
             win.set_pos(("m", "m"))
             win.set_header(title="Sign-up")
@@ -200,7 +200,7 @@ class Game:
 
             screen.show()
             screen.clear()
-            sleep(self.step_time/100)
+            sleep(screen.refresh_period)
             win.set_pos(("m", "m"))
             win.set_header(title="Login")
         remove_all_hotkeys()
@@ -307,7 +307,7 @@ class Game:
                     break
             screen.show()
             screen.clear()
-            sleep(self.step_time/100)
+            sleep(screen.refresh_period)
             win.set_pos(("m", "m"))
             win.set_header(title="Menu")
         remove_all_hotkeys()
@@ -394,7 +394,7 @@ class Game:
                 case "s":
                     self.step_time = self.step_time - 10 if self.step_time != 5 else 25
                     self.pressed_key = None
-            sleep(self.step_time/100)
+            sleep(screen.refresh_period)
             screen.show()
             screen.clear()
             win.set_pos(("m", "m"))
@@ -567,7 +567,7 @@ class Game:
             statics.add_text(text="growth", pos=["r", 7], format=format["dim"])
             for i in range(1, 6):
                 statics.add_text(
-                    text=apple_shapes[apple_prizes[i][2]][2], pos=["l", 7+i], format=apple_colors[i]
+                    text=apple_shapes[apple_prizes[i][1]][2], pos=["l", 7+i], format=apple_colors[i]
                 )
                 statics.add_text(text=str(apple_prizes[i][0]), pos=[12, 7+i])
                 statics.add_text(

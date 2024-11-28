@@ -9,15 +9,15 @@ toggle = ["☐", "☑"]
 
 
 apple_prizes = {
-    1: (1, 0, 1),
-    2: (2, 0, 1),
-    3: (3, 0, 1),
-    4: (1, 2, 2),
-    5: (2, 2, 2)
+    1: (1, 0),
+    2: (2, 0),
+    3: (3, 0),
+    4: (1, 2),
+    5: (2, 2)
 }
 
 apple_shapes = {
-    1: ["▗", "▖", "▗▖"],
+    0: ["▗", "▖", "▗▖"],
     2: ["◀", "▶", "◀▶"]
 }
 
@@ -80,8 +80,9 @@ theme = {
 
 
 class Screen:
-    def __init__(self, format=format["regular"]):
+    def __init__(self, format=format["regular"], refresh_period=0.01):
         self.default = format
+        self.refresh_period = refresh_period
         self.clear()
         return
 
@@ -214,7 +215,7 @@ class Window:
         elif code == -1:
             return format["regular"] + "█"
         elif code == -2:
-            return apple_colors[apple_code] + apple_shapes[apple_prizes[apple_code][2]][i]
+            return apple_colors[apple_code] + apple_shapes[apple_prizes[apple_code][1]][i]
             # return format["fore"][choice(colors["apple"])] + "█"
 
     def set_pos(self, pos):
