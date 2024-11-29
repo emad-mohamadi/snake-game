@@ -13,7 +13,7 @@ author_email = "semadmhmdi@gmail.com"
 url = "https://github.com/emad-mohamadi/terminal-tetris"
 install_requires = ['keyboard', 'pygame']
 package_data = {
-    'snake': ['*.json', '*.txt', 'pics/*.png'],
+    'snake': ['data.json', 'logo.txt', 'users.json', 'pics/*.png'],
 }
 entry_points = {
     'console_scripts': [
