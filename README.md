@@ -22,7 +22,7 @@ A classic Snake game implemented in Python that runs in your terminal.\
 + Local signup & login
 + Saving highscores
 + Local leaderboard
-+ Adjustin speed & game size
++ Adjusting speed & game size
 
 
 ## Requirements
