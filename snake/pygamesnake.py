@@ -36,14 +36,14 @@ config = {
                 'left': pygame.image.load("pics/snake-head-left.png"),
                 'right': pygame.image.load("pics/snake-head-right.png")
             },
-            'body': pygame.image.load("pics/1F7E9_color.png")
+            'body': pygame.image.load("pics/body.png")
         }
     },
     'food': {
-        'easy': pygame.image.load("pics/1F34F_color.png"),
-        'medium': pygame.image.load("pics/1F34F_color.png"),
-        'hard': pygame.image.load("pics/1F34F_color.png"),
-        'blocks': pygame.image.load("pics/snake-head-down.png"),
+        'easy': pygame.image.load("pics/apple.png"),
+        'medium': pygame.image.load("pics/apple.png"),
+        'hard': pygame.image.load("pics/apple.png"),
+        'blocks': pygame.image.load('pics/block.png'),
     },
 
     'game_modes': {
@@ -159,12 +159,10 @@ class Game:
 
     def drawing_path(self, path):
         if path:
-            print(f"path:{path}")
             for (x, y) in path:
                 # Calculate the center of the cell for each grid coordinate (x, y)
                 pixel_x = x + config['game_area']['cell_size'] // 2
                 pixel_y = y + config['game_area']['cell_size'] // 2
-                print((pixel_x, pixel_y))
                 # Draw a circle at each calculated position
                 pygame.draw.circle(win, GREEN, (pixel_x, pixel_y), 5)
 
@@ -264,7 +262,7 @@ class Game:
         pygame.display.update()
 
     def draw_in_game_options(self):
-        pygame.draw.rect(win, GREY, (config['game_area']['base_width'], height//2,
+        pygame.draw.rect(win, BLACK, (config['game_area']['base_width'], height//2,
                          config['display']['scoreboard_width'], config['game_area']['base_height']))
 
         font = pygame.font.SysFont('Lobster', 25)
@@ -804,7 +802,7 @@ def draw_text(text, font, color, surface, x, y):
 
 
 # Start the game by calling the main function
-if __name__ == "snake.pygamesnake":
+if __name__ == "pygamesnake":
     pygame.init()
     width, height = config['game_area']['base_width'] + \
         config['display']['scoreboard_width'], config['game_area']['base_height']
