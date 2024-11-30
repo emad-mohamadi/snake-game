@@ -4,7 +4,7 @@ import sys
 import random
 import heapq
 import json
-
+import copy
 # Initialize Pygame
 pygame.init()
 
@@ -13,7 +13,8 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-
+GREY = (64, 64, 64)
+BLUE = (0, 0, 255)
 # Game configuration
 config = {
     'game_area': {
@@ -42,13 +43,16 @@ config = {
     'food': {
         'easy': pygame.image.load("pics/1F34F_color.png"),
         'medium': pygame.image.load("pics/1F34F_color.png"),
-        'hard': pygame.image.load("pics/1F34F_color.png")
+        'hard': pygame.image.load("pics/1F34F_color.png"),
+        'blocks': pygame.image.load('pics/snake-head-up.png'),
     },
+
     'game_modes': {
         'autopilot': True,
-        'walls': False,
-        'blocks': False,
-        'poison food': False
+        'walls': True,
+        'blocks': True,
+        'poison food': False,
+        'food count': 3
     }
 }
 
@@ -90,9 +94,8 @@ scores = []
 # Autopilot mode
 autopilot = config['game_modes']['autopilot']
 
-
 # Font setup
-font = pygame.font.Font(None, 36)
+font = pygame.font.SysFont('Lobster', 30)
 
 # Define the directions
 UP = (0, -1)
@@ -108,32 +111,6 @@ food_pos = [random.randrange(1, game_area_width // cell_size) * cell_size,
 directions = [UP, DOWN, LEFT, RIGHT]
 
 
-def draw_options():
-    pygame.draw.rect(
-        win, BLACK, (0, config['game_area']['base_height'], width, config['display']['options_width']))
-    options_title = font.render('Options', True, WHITE)
-    win.blit(options_title, (10, config['game_area']['base_height'] + 10))
-
-    # Add more options as needed
-    option1 = font.render('P: Pause/Resume', True, WHITE)
-    win.blit(option1, (10, config['game_area']['base_height'] + 50))
-
-    option2 = font.render('Q: Quit', True, WHITE)
-    win.blit(option2, (10, config['game_area']['base_height'] + 90))
-
-    option3 = font.render('S: Save Game', True, WHITE)
-    win.blit(option3, (10, config['game_area']['base_height'] + 130))
-
-    option4 = font.render('L: Load Game', True, WHITE)
-    win.blit(option4, (10, config['game_area']['base_height'] + 170))
-
-    option5 = font.render('A: Toggle Autopilot', True, WHITE)
-    win.blit(option5, (10, config['game_area']['base_height'] + 210))
-
-    option6 = font.render('M: Main Menu', True, WHITE)
-    win.blit(option6, (10, config['game_area']['base_height'] + 250))
-
-
 class Game:
     def __init__(self, username):
         self.username = username
@@ -145,63 +122,169 @@ class Game:
         self.autopilot = config['game_modes']['autopilot']
         self.walls = config['game_modes']['walls']
         self.poison_food = config['game_modes']['poison food']
-        self.load_game()
+        self.food_count = config['game_modes']['food count']
+        self.board_size = config['game_area']['base_width']
+        self.blocks_on = config['game_modes']['blocks']
+        self.draw_path = False
+        self.speed = config['snake']['speed']
+        self.load_high_score()
 
-    def load_game(self):
-        snake_pos, food_pos, direction, score, high_score = self.load_game_from_file(
-            self.username)
-        if snake_pos:
-            self.snake.snake_pos = snake_pos
-            self.food.position = food_pos
-            self.snake.direction = direction
-            self.score = score
-            self.high_score = high_score
+    def reset(self):
+        self.score = 0
+        self.snake = Snake()
+        self.food = Food()
+        self.blocks = []
 
-    def save_game(self):
-        self.save_game_to_file(self.snake.snake_pos, self.food.position,
-                               self.snake.direction, self.score, self.username)
-
-    def load_game_from_file(self, username):
+    def load_high_score(self):
         try:
-            with open('savegame.json', 'r') as save_file:
-                data = json.load(save_file)
-            if username in data:
-                return data[username]['snake_pos'], data[username]['food_pos'], data[username]['direction'], data[username]['score'], data[username]['high_score']
-            else:
-                return None, None, None, 0, 0
+            with open('users.json', 'r') as user_file:
+                users = json.load(user_file)
+            if self.username in users:
+                self.high_score = users[self.username].get('high_score', 0)
         except FileNotFoundError:
-            return None, None, None, 0, 0
+            self.high_score = 0
 
-    def save_game_to_file(self, snake_pos, food_pos, direction, score, username):
+    def save_high_score(self):
+        # Save the high score for the user in users.json
         try:
-            with open('savegame.json', 'r') as save_file:
-                data = json.load(save_file)
+            with open('users.json', 'r') as user_file:
+                users = json.load(user_file)
         except FileNotFoundError:
-            data = {}
+            users = {}
 
-        if username not in data or score > data[username]['high_score']:
-            data[username] = {'snake_pos': snake_pos, 'food_pos': food_pos,
-                              'direction': direction, 'score': score, 'high_score': score}
-        else:
-            data[username].update(
-                {'snake_pos': snake_pos, 'food_pos': food_pos, 'direction': direction, 'score': score})
+        if self.username not in users or self.score > users[self.username]['high_score']:
+            users[self.username] = {'high_score': self.score}
 
-        with open('savegame.json', 'w') as save_file:
-            json.dump(data, save_file)
+        with open('users.json', 'w') as user_file:
+            json.dump(users, user_file)
+
+    def drawing_path(self, path):
+        if path:
+            for (x, y) in path:
+                # Calculate the center of the cell for each grid coordinate (x, y)
+                pixel_x = x + config['game_area']['cell_size'] // 2
+                pixel_y = y + config['game_area']['cell_size'] // 2
+                # Draw a circle at each calculated position
+                pygame.draw.circle(win, GREEN, (pixel_x, pixel_y), 5)
+
+    def setup_options(self):
+        running = True
+
+        while running:
+            win.fill(BLACK)
+            font = pygame.font.SysFont('Lobster', 30)
+
+            # Title
+            title = font.render("Game Options", True, WHITE)
+            win.blit(title, (150, 50))
+
+            # Options
+            options = [
+                f"Food Count: {self.food_count} (LEFT/RIGHT to adjust)",
+                f"Autopilot: {
+                    'ON' if self.autopilot else 'OFF'} (A to toggle)",
+                f"Walls: {'ON' if self.walls else 'OFF'} (W to toggle)",
+                f"Blocks: {'ON' if self.blocks_on else 'OFF'} (B to toggle)",
+            ]
+
+            for i, option in enumerate(options):
+                text = font.render(option, True, WHITE)
+                win.blit(text, (50, 150 + i * 50))
+
+            # Instructions
+            instructions = font.render("Press ENTER to Start", True, WHITE)
+            win.blit(instructions, (100, 450))
+
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        running = False
+                    elif event.key == pygame.K_RIGHT and self.food_count < 3:
+                        self.food_count += 1
+                    elif event.key == pygame.K_LEFT and self.food_count > 1:
+                        self.food_count -= 1
+                    elif event.key == pygame.K_a:
+                        self.autopilot = not self.autopilot
+                    elif event.key == pygame.K_w:
+                        self.walls = not self.walls
+                    elif event.key == pygame.K_b:
+                        self.blocks_on = not self.blocks_on
+        config['game_modes']['food count'] = self.food_count
+        config['game_modes']['walls'] = self.walls
 
     def draw_scoreboard(self):
         pygame.draw.rect(
             win, BLACK, (config['game_area']['base_width'], 0, config['display']['scoreboard_width'], height))
+
+        # Load the users' scores
+        try:
+            with open('users.json', 'r') as user_file:
+                users = json.load(user_file)
+        except FileNotFoundError:
+            users = {}
+
+        # Get top 3 scores (including the current user)
+        top_scores = sorted(
+            [(username, user_data['high_score'])
+             for username, user_data in users.items()],
+            key=lambda x: x[1], reverse=True
+        )[:3]  # Take top 3
+
+        # Render scoreboard information
+        font = pygame.font.SysFont('Lobster', 25)
+
+        # Title
         score_title = font.render('Scoreboard', True, WHITE)
         win.blit(score_title, (config['game_area']['base_width'] + 10, 10))
+
+        # Current score and user's high score
         current_score_text = font.render(f"Score: {self.score}", True, WHITE)
         win.blit(current_score_text,
-                 (config['game_area']['base_width'] + 10, 50))
+                 (config['game_area']['base_width'] + 10, 40))
+
         high_score_text = font.render(f"High Score {self.username}: {
                                       self.high_score}", True, WHITE)
-        win.blit(high_score_text, (config['game_area']['base_width'] + 10, 90))
+        win.blit(high_score_text, (config['game_area']['base_width'] + 10, 70))
+
+        # Display top 3 players
+        y_offset = 110  # Starting point for top scores
+        for i, (player, score) in enumerate(top_scores):
+            player_score_text = font.render(
+                f"{i+1}. {player}: {score}", True, WHITE)
+            win.blit(player_score_text,
+                     (config['game_area']['base_width'] + 10, y_offset + i * 20))
+
+        # Update the display
+        pygame.display.update()
+
+    def draw_in_game_options(self):
+        pygame.draw.rect(win, BLACK, (config['game_area']['base_width'], height//2,
+                         config['display']['scoreboard_width'], config['game_area']['base_height']))
+
+        font = pygame.font.SysFont('Lobster', 25)
+        options = [
+            f"Autopilot: {'ON' if self.autopilot else 'OFF'} (A to toggle)",
+            f"Walls: {'ON' if self.walls else 'OFF'} (W to toggle)",
+            f"Blocks: {'ON' if self.blocks_on else 'OFF'} (B to toggle)",
+            f"Food Count: {self.food_count}",
+            f"draw path: {'on' if self.draw_path else 'off'} (D to toggle)",
+            f"speed: {'FAST' if self.speed == 20 else ''}{'MID' if self.speed == 15 else ''}{
+                'SLOW' if self.speed == 10 else ''}(S to change)"
+        ]
+
+        for i, option in enumerate(options):
+            text = font.render(option, True, WHITE)
+            win.blit(text, (config['game_area']
+                     ['base_width'] + 10, height//2 + (i+1) * 25))
 
     def run(self):
+        self.reset()
+        self.setup_options()
         running = True
         paused = False
         loading_screen()
@@ -217,50 +300,92 @@ class Game:
                         sys.exit()
                     elif event.key == pygame.K_p:
                         paused = not paused
-                    elif event.key == pygame.K_s:
-                        self.save_game()
-                    elif event.key == pygame.K_l:
-                        self.load_game()
                     elif event.key == pygame.K_a:
                         self.autopilot = not self.autopilot
+                    elif event.key == pygame.K_w:
+                        self.walls = not self.walls
+                    elif event.key == pygame.K_b:
+                        self.blocks_on = not self.blocks_on
+                    elif event.key == pygame.K_d:
+                        self.draw_path = not self.draw_path
+                    elif event.key == pygame.K_s and self.speed < 20:
+                        self.speed += 5
+                    elif event.key == pygame.K_s and self.speed == 20:
+                        self.speed -= 10
                     elif event.key == pygame.K_m:
+                        self.save_high_score()
                         main_menu()
                         return
+            config['snake']['speed'] = self.speed
 
             if not paused:
-                self.snake.move(self.autopilot, self.food.position)
+                self.snake.move(
+                    self.autopilot, self.food.position, self.blocks)
                 if self.snake.check_collision(self.walls, self.blocks):
+                    pygame.time.delay(2000)
                     running = False
-                    print(f"Game Over! Your score: {self.score}")
+                    self.save_high_score()
+                    self.show_game_over_screen()
 
-                if self.snake.snake_pos[0] == self.food.position:
-                    self.food.position = self.food.handle_collision(
-                        self.snake.snake_pos, self.blocks)
-                    self.score += 1
+                if self.snake.snake_pos[0] in self.food.position:
+                    if config['game_modes']['blocks'] and random.random() < 0.25:
+                        self.blocks.append(Food.generate_blocks(snake_pos))
+                        if len(self.blocks) > (config['game_area']['base_width']*config['game_area']['base_height'])//20:
+                            self.blocks.pop(0)
+                    self.food.position.remove(self.snake.snake_pos[0])
+                    self.food.generate_food_position(
+                        self.snake.snake_pos, self.blocks, config['game_area']['base_width'], config['game_area']['base_height'], cell_size)
+                    self.score += 10
                     if self.score > self.high_score:
                         self.high_score = self.score
                 else:
                     self.snake.snake_pos.pop()
 
             win.fill(BLACK)
+            if self.draw_path:
+                path = Navigate.dijkstra(self.snake.snake_pos, self.food.position, self.blocks,
+                                         config['game_area']['base_width'], config['game_area']['base_height'], config['game_area']['cell_size'])
+                self.drawing_path(path)
+            for block in self.blocks:
+                win.blit(config['food']['blocks'], (block[0], block[1]))
             self.snake.draw(win)
             self.food.draw(win)
             self.draw_scoreboard()
-            draw_options()
+            self.draw_in_game_options()
 
             pygame.display.update()
             clock.tick(config['snake']['speed'])
 
+    def show_game_over_screen(self):
+        win.fill(BLACK)
+        game_over_text = font.render('GAME OVER', True, WHITE)
+        win.blit(game_over_text, (width // 2 - 100, height // 2 - 40))
+        score_text = font.render(f'Your Score: {self.score}', True, WHITE)
+        win.blit(score_text, (width // 2 - 100, height // 2))
+        draw_text('Press any key to return to menu', font,
+                  WHITE, win, width // 2, height // 2 + 40)
+        pygame.display.update()
+
+        waiting_for_input = True
+        while waiting_for_input:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    waiting_for_input = False
+                    game_options(self.username)
+
 
 class Snake:
     def __init__(self):
-        self.snake_pos = config['snake']['start_pos']
+        self.snake_pos = copy.deepcopy(config['snake']['start_pos'])
         self.direction = RIGHT
 
-    def move(self, autopilot, food_pos):
+    def move(self, autopilot, food_pos, blocks):
         if autopilot:
-            path = Navigate.dijkstra(
-                self.snake_pos, food_pos, config['game_area']['base_width'], config['game_area']['base_height'], config['game_area']['cell_size'])
+            path = Navigate.dijkstra(self.snake_pos, food_pos, blocks,
+                                     config['game_area']['base_width'], config['game_area']['base_height'], config['game_area']['cell_size'])
             if path and len(path) > 1:
                 next_pos = path[1]
                 if next_pos[0] > self.snake_pos[0][0]:
@@ -286,11 +411,11 @@ class Snake:
                 self.direction = RIGHT
             next_pos = [self.snake_pos[0][0] + self.direction[0] * config['game_area']['cell_size'],
                         self.snake_pos[0][1] + self.direction[1] * config['game_area']['cell_size']]
-
-        next_pos[0] = (next_pos[0] + config['game_area']
-                       ['base_width']) % config['game_area']['base_width']
-        next_pos[1] = (next_pos[1] + config['game_area']
-                       ['base_height']) % config['game_area']['base_height']
+        if not config['game_modes']['walls']:
+            next_pos[0] = (next_pos[0] + config['game_area']
+                           ['base_width']) % config['game_area']['base_width']
+            next_pos[1] = (next_pos[1] + config['game_area']
+                           ['base_height']) % config['game_area']['base_height']
 
         self.snake_pos.insert(0, list(next_pos))
 
@@ -323,95 +448,67 @@ class Snake:
 
 
 class Food:
-    def __init__(self):
-        self.position = self.generate_food_position(
-            [], config['game_area']['base_width'], config['game_area']['base_height'], config['game_area']['cell_size'])
+    position = []
 
-    def handle_collision(self, snake_pos, blocks):
-        global score
-        if self.position == self.generate_poison_food_position(snake_pos, config['game_area']['base_width'], config['game_area']['base_height'], config['game_area']['cell_size']):
-            score -= 1  # Decrease score for poison food
-        else:
-            score += 1  # Increase score for normal food
-            if config['game_modes']['blocks']:
-                block = self.generate_blocks(snake_pos)
-                if block:
-                    blocks.append(block)
-            if config['game_modes']['poison food']:
-                self.position = self.generate_poison_food_position(
-                    snake_pos, config['game_area']['base_width'], config['game_area']['base_height'], config['game_area']['cell_size'])
-            else:
-                self.position = self.generate_food_position(
-                    snake_pos, config['game_area']['base_width'], config['game_area']['base_height'], config['game_area']['cell_size'])
-        return self.position
+    def __init__(self):
+        self.generate_food_position([], [], config['game_area']['base_width'],
+                                    config['game_area']['base_height'], config['game_area']['cell_size'])
 
     def draw(self, surface):
-        # Change as needed for mode
-        surface.blit(config['food']['easy'],
-                     (self.position[0], self.position[1]))
+        for pos in self.position:
+            # Change as needed for mode
+            surface.blit(config['food']['easy'], (pos[0], pos[1]))
 
-    @staticmethod
-    def generate_food_position(snake_pos, game_width, game_height, cell_size):
-        food_pos = [random.randrange(1, game_width // cell_size) * cell_size,
-                    random.randrange(1, game_height // cell_size) * cell_size]
-        while food_pos in snake_pos:
+    def generate_food_position(self, snake_pos, blocks, game_width, game_height, cell_size):
+        while len(self.position) < config['game_modes']['food count']:
             food_pos = [random.randrange(1, game_width // cell_size) * cell_size,
                         random.randrange(1, game_height // cell_size) * cell_size]
-        return food_pos
+            if not (food_pos in snake_pos+blocks+self.position or len([1 for direction in directions if [food_pos[0] + direction[0] * cell_size, food_pos[1] + direction[1] * cell_size] not in blocks]) < 2):
+                self.position.append(food_pos)
 
     @staticmethod
-    def generate_poison_food_position(snake_pos, game_width, game_height, cell_size):
-        poison_food_pos = [random.randrange(1, game_width // cell_size) * cell_size,
-                           random.randrange(1, game_height // cell_size) * cell_size]
-        while poison_food_pos in snake_pos:
-            poison_food_pos = [random.randrange(1, game_width // cell_size) * cell_size,
-                               random.randrange(1, game_height // cell_size) * cell_size]
-        return poison_food_pos
-
-    @staticmethod
-    def generate_blocks(snake_pos, probability=0.1):
-        if random.random() < probability:
+    def generate_blocks(snake_pos):
+        block_pos = [random.randrange(1, config['game_area']['base_width'] // config['game_area']['cell_size']) * config['game_area']['cell_size'],
+                     random.randrange(1, config['game_area']['base_height'] // config['game_area']['cell_size']) * config['game_area']['cell_size']]
+        while block_pos in snake_pos:
             block_pos = [random.randrange(1, config['game_area']['base_width'] // config['game_area']['cell_size']) * config['game_area']['cell_size'],
                          random.randrange(1, config['game_area']['base_height'] // config['game_area']['cell_size']) * config['game_area']['cell_size']]
-            while block_pos in snake_pos:
-                block_pos = [random.randrange(1, config['game_area']['base_width'] // config['game_area']['cell_size']) * config['game_area']['cell_size'],
-                             random.randrange(1, config['game_area']['base_height'] // config['game_area']['cell_size']) * config['game_area']['cell_size']]
-            return block_pos
-        return None
+        return block_pos
 
 
 class Navigate:
     @staticmethod
-    def dijkstra(snake_pos, food_pos, game_width, game_height, cell_size):
+    def dijkstra(snake_pos, food_positions, blocks, game_width, game_height, cell_size):
+
         queue = [(0, snake_pos[0])]
         visited = set()
         came_from = {tuple(snake_pos[0]): None}
         snake_set = set(map(tuple, snake_pos))
-
+        current_node = 0
         while queue:
             current_cost, current_node = heapq.heappop(queue)
             visited.add(tuple(current_node))
 
-            if current_node == food_pos:
+            if current_node in food_positions:
                 break
 
             for direction in directions:
                 neighbor = [current_node[0] + direction[0] * cell_size,
                             current_node[1] + direction[1] * cell_size]
-                neighbor[0] = (neighbor[0] + game_width) % game_width
-                neighbor[1] = (neighbor[1] + game_height) % game_height
-
+                if not config['game_modes']['walls']:
+                    neighbor[0] = (neighbor[0] + game_width) % game_width
+                    neighbor[1] = (neighbor[1] + game_height) % game_height
                 if tuple(neighbor) not in visited and tuple(neighbor) not in snake_set:
-                    heapq.heappush(queue, (current_cost + 1, neighbor))
-                    visited.add(tuple(neighbor))
-                    came_from[tuple(neighbor)] = current_node
+                    if (0 <= neighbor[0] < game_width and 0 <= neighbor[1] < game_height) and not neighbor in blocks:
+                        heapq.heappush(queue, (current_cost + 1, neighbor))
+                        visited.add(tuple(neighbor))
+                        came_from[tuple(neighbor)] = current_node
 
         path = []
-        step = food_pos
+        step = current_node
         while step:
             path.append(step)
             step = came_from.get(tuple(step))
-
         return path[::-1]
 
     @staticmethod
@@ -433,6 +530,7 @@ class Navigate:
 def login():
     login_active = True
     username = ""
+
     while login_active:
         win.fill(BLACK)
         draw_text('LOGIN', font, WHITE, win, width // 2, height // 4)
@@ -450,8 +548,12 @@ def login():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    game_options(username)
-                    login_active = False
+                    if check_credentials(username):
+                        game_options(username)
+                        login_active = False
+                    else:
+                        draw_text("User not found. Please sign up.",
+                                  font, RED, win, width // 2, height // 2 + 120)
                 elif event.key == pygame.K_BACKSPACE:
                     username = username[:-1]
                 elif event.key == pygame.K_m and pygame.key.get_mods() & pygame.KMOD_ALT:
@@ -464,6 +566,7 @@ def login():
 def sign_up():
     sign_up_active = True
     username = ""
+
     while sign_up_active:
         win.fill(BLACK)
         draw_text('SIGN UP', font, WHITE, win, width // 2, height // 4)
@@ -481,8 +584,12 @@ def sign_up():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    game_options(username)
-                    sign_up_active = False
+                    if register_user(username):
+                        game_options(username)
+                        sign_up_active = False
+                    else:
+                        draw_text("Username already exists.", font,
+                                  RED, win, width // 2, height // 2 + 120)
                 elif event.key == pygame.K_BACKSPACE:
                     username = username[:-1]
                 elif event.key == pygame.K_m and pygame.key.get_mods() & pygame.KMOD_ALT:
@@ -543,19 +650,15 @@ def loading_screen():
 
 
 def check_credentials(username):
-    # Logic to check credentials from a stored file/database
     try:
         with open('users.json', 'r') as user_file:
             users = json.load(user_file)
-        if username in users:
-            return True
-        return False
+        return username in users
     except FileNotFoundError:
         return False
 
 
 def register_user(username):
-    # Logic to register user in a stored file/database
     try:
         with open('users.json', 'r') as user_file:
             users = json.load(user_file)
@@ -563,7 +666,7 @@ def register_user(username):
         users = {}
 
     if username not in users:
-        users[username] = None
+        users[username] = {"high_score": 0}
         with open('users.json', 'w') as user_file:
             json.dump(users, user_file)
         return True
@@ -601,34 +704,56 @@ def game_options(username):
                     game.run()
                     options_active = False
                 if event.key == pygame.K_3:
-                    view_high_scores(username)
+                    view_and_save_high_score(username)
                 if event.key == pygame.K_4:
                     main_menu()
                     options_active = False
 
 
-def view_high_scores(username):
+def view_and_save_high_score(username, score=None):
+    # View High Scores
+    win.fill(BLACK)
+    draw_text('HIGH SCORES', font, WHITE, win, width // 2, height // 4)
+
+    try:
+        with open('users.json', 'r') as user_file:
+            users = json.load(user_file)
+    except FileNotFoundError:
+        users = {}
+
+    if username in users:
+        high_score_text = f"High Score for {
+            username}: {users[username]['high_score']}"
+    else:
+        high_score_text = "No high score available for this user."
+
+    draw_text(high_score_text, font, WHITE, win, width // 2, height // 2)
+
+    if score is not None:  # If score is provided, save it as the new high score.
+        # Save High Score (if score is higher than the current one)
+        if username in users:
+            current_high_score = users[username]["high_score"]
+            if score > current_high_score:
+                users[username]["high_score"] = score
+                with open('users.json', 'w') as user_file:
+                    json.dump(users, user_file)
+                draw_text(f"New high score: {
+                          score}", font, GREEN, win, width // 2, height // 2 + 40)
+        else:
+            users[username] = {"high_score": score}
+            with open('users.json', 'w') as user_file:
+                json.dump(users, user_file)
+            draw_text(f"New high score: {score}", font,
+                      GREEN, win, width // 2, height // 2 + 40)
+
+    draw_text('Press any key to return', font, WHITE,
+              win, width // 2, height // 2 + 80)
+    draw_text('Press Alt+M to return to menu', font,
+              WHITE, win, width // 2, height // 2 + 120)
+    pygame.display.update()
+
     high_scores_active = True
     while high_scores_active:
-        win.fill(BLACK)
-        draw_text('HIGH SCORES', font, WHITE, win, width // 2, height // 4)
-        try:
-            with open('savegame.json', 'r') as save_file:
-                data = json.load(save_file)
-            if username in data:
-                high_score_text = f"High Score for {
-                    username}: {data[username]['high_score']}"
-            else:
-                high_score_text = "No high score available for this user."
-        except FileNotFoundError:
-            high_score_text = "No high score available."
-        draw_text(high_score_text, font, WHITE, win, width // 2, height // 2)
-        draw_text('Press any key to return', font, WHITE,
-                  win, width // 2, height // 2 + 40)
-        draw_text('Press Alt+M to return to menu', font,
-                  WHITE, win, width // 2, height // 2 + 80)
-        pygame.display.update()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -676,16 +801,15 @@ def draw_text(text, font, color, surface, x, y):
     textrect = textobj.get_rect(center=(x, y))
     surface.blit(textobj, textrect)
 
+
 # Start the game by calling the main function
-
-
-if __name__ == "snakegame":
+if __name__ == "__main__":
     pygame.init()
     width, height = config['game_area']['base_width'] + \
         config['display']['scoreboard_width'], config['game_area']['base_height']
     win = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Smart Snake")
-    font = pygame.font.Font(None, 36)
+    font = pygame.font.SysFont('Lobster', 30)
     clock = pygame.time.Clock()
 
     main_menu()
