@@ -1,5 +1,5 @@
 from keyboard import add_hotkey, remove_all_hotkeys
-from display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity, apple_prizes, apple_shapes, apple_colors
+from snake.display import Screen, Window, welcome, sleep, borders, message, format, toggle, intensity, apple_prizes, apple_shapes, apple_colors
 from json import load, dump
 from random import choice
 import sys
@@ -37,8 +37,8 @@ class Game:
             case 6:
                 return self.run()
             case 7:
-                import snakegame
-                del sys.modules["snakegame"]
+                import snake.pygamesnake
+                del sys.modules["snake.pygamesnake"]
                 return 3
 
         return 0

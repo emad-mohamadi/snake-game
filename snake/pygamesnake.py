@@ -1,10 +1,10 @@
-
 import pygame
 import sys
 import random
 import heapq
 import json
 import copy
+import pkg_resources
 # Initialize Pygame
 pygame.init()
 
@@ -32,19 +32,19 @@ config = {
         'speed': 15,
         'images': {
             'head': {
-                'up': pygame.image.load("pics/snake-head-up.png"),
-                'down': pygame.image.load("pics/snake-head-down.png"),
-                'left': pygame.image.load("pics/snake-head-left.png"),
-                'right': pygame.image.load("pics/snake-head-right.png")
+                'up': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/snake-head-up.png"}')),
+                'down': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/snake-head-down.png"}')),
+                'left': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/snake-head-left.png"}')),
+                'right': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/snake-head-right.png"}'))
             },
-            'body': pygame.image.load("pics/body.png")
+            'body': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/body.png"}'))
         }
     },
     'food': {
-        'easy': pygame.image.load("pics/apple.png"),
-        'medium': pygame.image.load("pics/apple.png"),
-        'hard': pygame.image.load("pics/apple.png"),
-        'blocks': pygame.image.load('pics/block.png'),
+        'easy': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/apple.png"}')),
+        'medium': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/apple.png"}')),
+        'hard': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/apple.png"}')),
+        'blocks': pygame.image.load(pkg_resources.resource_filename(__name__, f'{"pics/block.png"}')),
     },
 
     'game_modes': {
@@ -803,13 +803,12 @@ def draw_text(text, font, color, surface, x, y):
 
 
 # Start the game by calling the main function
-if __name__ == "__main__":
-    pygame.init()
-    width, height = config['game_area']['base_width'] + \
-        config['display']['scoreboard_width'], config['game_area']['base_height']
-    win = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Smart Snake")
-    font = pygame.font.SysFont('Lobster', 30)
-    clock = pygame.time.Clock()
+pygame.init()
+width, height = config['game_area']['base_width'] + \
+    config['display']['scoreboard_width'], config['game_area']['base_height']
+win = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Smart Snake")
+font = pygame.font.SysFont('Lobster', 30)
+clock = pygame.time.Clock()
 
-    main_menu()
+main_menu()

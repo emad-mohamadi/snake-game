@@ -1,4 +1,4 @@
-from navigate import Board
+from snake.navigate import Board
 from time import sleep
 from random import choice, randint
 from math import ceil
