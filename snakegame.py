@@ -37,14 +37,14 @@ config = {
                 'left': pygame.image.load("pics/snake-head-left.png"),
                 'right': pygame.image.load("pics/snake-head-right.png")
             },
-            'body': pygame.image.load("pics/1F7E9_color.png")
+            'body': pygame.image.load("pics/body.png")
         }
     },
     'food': {
-        'easy': pygame.image.load("pics/1F34F_color.png"),
-        'medium': pygame.image.load("pics/1F34F_color.png"),
-        'hard': pygame.image.load("pics/1F34F_color.png"),
-        'blocks': pygame.image.load('pics/snake-head-up.png'),
+        'easy': pygame.image.load("pics/apple.png"),
+        'medium': pygame.image.load("pics/apple.png"),
+        'hard': pygame.image.load("pics/apple.png"),
+        'blocks': pygame.image.load('pics/block.png'),
     },
 
     'game_modes': {
