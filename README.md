@@ -67,8 +67,9 @@ To uninstall the game, run:
    │   ├── pygamesnake.py
    │   ├── logo.txt
    │   ├── pics/
-   │   │   ├── 1F34F_color.png
-   │   │   ├── 1F7E9_color.png
+   │   │   ├── apple.png
+   │   │   ├── block.png
+   │   │   ├── body.png
    │   │   ├── snake-head-down.png
    │   │   ├── snake-head-left.png
    │   │   ├── snake-head-right.png
