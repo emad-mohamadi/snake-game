@@ -40,11 +40,10 @@ A classic Snake game implemented in Python that runs in your terminal.\
 1. Clone the repository:
    ```bash
    git clone https://github.com/emad-mohamadi/snake-game.git
-   cd snake-game
    ```
 2. Install the package:
    ```bash
-   pip install .
+   pip install snake-game
    ```
 ## Usage
 To start the game, simply run `snake` command anywhere in terminal.
