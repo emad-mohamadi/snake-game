@@ -80,10 +80,10 @@ To uninstall the game, run:
    └── README.md
    ```
 ## Marboro Team 🐍
-> [emad-mohamadi](https://github.com/emad-mohamadi)\
- [melow-git](https://github.com/melow-git)\
- [danial-fazel](https://github.com/danial-fazel)\
- [Mhdig0](https://github.com/Mhdig0)
+> [@emad-mohamadi](https://github.com/emad-mohamadi)\
+ [@melow-git](https://github.com/melow-git)\
+ [@danial-fazel](https://github.com/danial-fazel)\
+ [@Mhdig0](https://github.com/Mhdig0)
 
 ## Contact
 >Mail: semadmhmdi@gmail.com \
