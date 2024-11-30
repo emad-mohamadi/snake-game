@@ -48,7 +48,7 @@ A classic Snake game implemented in Python that runs in your terminal.\
 ## Usage
 To start the game, simply run `snake` command anywhere in terminal.
 > ⚠️ **Warning**\
-_In Linux OS, the `keyboard` module may need to access the root._
+_In Linux OS, the `keyboard` module might require root access._
 ## Uninstallation
 To uninstall the game, run:
    ```bash
