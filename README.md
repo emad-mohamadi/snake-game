@@ -59,13 +59,13 @@ To uninstall the game, run:
    .snake-game/
    ├── snake/
    │   ├── __init__.py
-   │   ├── main.py           
-   │   ├── logic.py
-   │   ├── navigate.py
-   │   ├── display.py
-   │   ├── pygamesnake.py
-   │   ├── logo.txt
-   │   ├── pics/
+   │   ├── main.py             # Runs the game
+   │   ├── logic.py            # Game logic and menus
+   │   ├── navigate.py         # AI algorithm
+   │   ├── display.py          # Terminal interface
+   │   ├── pygamesnake.py      # Pygame interface
+   │   ├── logo.txt            # Team ascii logo
+   │   ├── pics/               # Pygame pictures
    │   │   ├── apple.png
    │   │   ├── block.png
    │   │   ├── body.png
@@ -73,11 +73,11 @@ To uninstall the game, run:
    │   │   ├── snake-head-left.png
    │   │   ├── snake-head-right.png
    │   │   └── snake-head-up.png
-   │   ├── data.json
-   │   └── users.json
-   ├── setup.py
-   ├── requirements.txt
-   └── README.md
+   │   ├── data.json           # Game data
+   │   └── users.json          # Pygame data
+   ├── setup.py                # Game install setup
+   ├── requirements.txt        # Dependencies
+   └── README.md               # Project README
    ```
 ## Marboro Team 🐍
 > [@emad-mohamadi](https://github.com/emad-mohamadi)\
