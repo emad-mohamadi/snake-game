@@ -1,7 +1,7 @@
-# Terminal Snake Game
+# 🐍 Terminal Snake Game
 
 A classic Snake game implemented in Python that runs in your terminal.\
-~ By The Marboro Team 🐍
+~ By The Marboro Team
 
 ## Contents
 - [Features](#features)
@@ -10,7 +10,7 @@ A classic Snake game implemented in Python that runs in your terminal.\
 - [Usage](#usage)
 - [Uninstallation](#uninstallation)
 - [Project Structure](#project-structure)
-- [Marboro Team](#marboro-team-🐍)
+- [Marboro Team](#marboro-team)
 - [Contact](#contact)
 
 ## Features
@@ -79,7 +79,7 @@ To uninstall the game, run:
    ├── requirements.txt        # Dependencies
    └── README.md               # Project README
    ```
-## Marboro Team 🐍
+## Marboro Team
 > [@emad-mohamadi](https://github.com/emad-mohamadi)\
  [@melow-git](https://github.com/melow-git)\
  [@danial-fazel](https://github.com/danial-fazel)\
